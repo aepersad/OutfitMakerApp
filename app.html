@@ -52,41 +52,53 @@
             <option value="dress">Dress</option>
           </select>
 
-          <label id="topTypeRow" class="hidden">Subcategory</label>
-          <select id="topTypeSelect" class="hidden">
-            <option value="">Select</option>
-            <option value="shirt">Shirt</option>
-            <option value="cardigan">Cardigan</option>
-            <option value="sweater">Sweater</option>
-            <option value="jacket">Jacket</option>
-          </select>
+          <!-- TOP subcategory -->
+          <div id="topTypeGroup" class="hidden">
+            <label>Top type</label>
+            <select id="topTypeSelect">
+              <option value="">Select</option>
+              <option value="shirt">Shirt</option>
+              <option value="cardigan">Cardigan</option>
+              <option value="sweater">Sweater</option>
+              <option value="jacket">Jacket</option>
+            </select>
+          </div>
 
-          <label id="bottomTypeRow" class="hidden">Subcategory</label>
-          <select id="bottomTypeSelect" class="hidden">
-            <option value="">Select</option>
-            <option value="jeans">Jeans</option>
-            <option value="leggings">Leggings</option>
-            <option value="sweatpants">Sweatpants</option>
-            <option value="trousers">Trousers</option>
-            <option value="shorts">Shorts</option>
-            <option value="skirt">Skirt</option>
-          </select>
+          <!-- BOTTOM subcategory -->
+          <div id="bottomTypeGroup" class="hidden">
+            <label>Bottom type</label>
+            <select id="bottomTypeSelect">
+              <option value="">Select</option>
+              <option value="jeans">Jeans</option>
+              <option value="leggings">Leggings</option>
+              <option value="sweatpants">Sweatpants</option>
+              <option value="trousers">Trousers</option>
+              <option value="shorts">Shorts</option>
+              <option value="skirt">Skirt</option>
+            </select>
+          </div>
 
-          <label id="sleeveRow" class="hidden">Sleeve length</label>
-          <select id="sleeveSelect" class="hidden">
-            <option value="">Select</option>
-            <option value="sleeveless">Sleeveless</option>
-            <option value="short">Short</option>
-            <option value="long">Long</option>
-          </select>
+          <!-- Sleeve length (TOP + DRESS only) -->
+          <div id="sleeveGroup" class="hidden">
+            <label>Sleeve length</label>
+            <select id="sleeveSelect">
+              <option value="">Select</option>
+              <option value="sleeveless">Sleeveless</option>
+              <option value="short">Short</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
 
-          <label id="dressLengthRow" class="hidden">Dress length</label>
-          <select id="dressLengthSelect" class="hidden">
-            <option value="">Select</option>
-            <option value="mini">Mini</option>
-            <option value="midi">Midi</option>
-            <option value="maxi">Maxi</option>
-          </select>
+          <!-- Dress length (DRESS only) -->
+          <div id="dressLengthGroup" class="hidden">
+            <label>Dress length</label>
+            <select id="dressLengthSelect">
+              <option value="">Select</option>
+              <option value="mini">Mini</option>
+              <option value="midi">Midi</option>
+              <option value="maxi">Maxi</option>
+            </select>
+          </div>
 
           <label>Color</label>
           <select id="colorSelect">
