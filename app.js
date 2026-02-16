@@ -1,10 +1,11 @@
 const MAX_ITEMS = 10;
 
+// Storage keys (fake login + per-profile closet/favs)
 const PROFILE_KEY = "buildmyoutfit_profile_v1";
 function itemsKey(profileId) { return `buildmyoutfit_items_${profileId}_v1`; }
 function favsKey(profileId)  { return `buildmyoutfit_favs_${profileId}_v1`; }
 
-/* ---------- Color Logic (EDIT THIS) ---------- */
+/* ---------- Color logic (EDIT THIS) ---------- */
 const NEUTRALS = ["black","white","gray","navy","beige","cream","brown","denim_blue"];
 const COLOR_CLASHES = {
   red: ["green", "orange", "purple"],
@@ -29,6 +30,7 @@ function loadItems(profileId) {
   const parsed = raw ? safeParse(raw, []) : [];
   return Array.isArray(parsed) ? parsed : [];
 }
+
 function saveItems(profileId, items) {
   localStorage.setItem(itemsKey(profileId), JSON.stringify(items));
 }
@@ -38,6 +40,7 @@ function loadFavs(profileId) {
   const parsed = raw ? safeParse(raw, []) : [];
   return Array.isArray(parsed) ? parsed : [];
 }
+
 function saveFavs(profileId, favs) {
   localStorage.setItem(favsKey(profileId), JSON.stringify(favs));
 }
@@ -58,19 +61,21 @@ const profileLabel = document.getElementById("profileLabel");
 const logoutBtn = document.getElementById("logoutBtn");
 
 const fileInput = document.getElementById("fileInput");
+const fileNameEl = document.getElementById("fileName");
 const imgPreview = document.getElementById("imgPreview");
 const previewPlaceholder = document.getElementById("previewPlaceholder");
 
 const categorySelect = document.getElementById("categorySelect");
-const topTypeLabel = document.getElementById("topTypeLabel");
 const topTypeSelect = document.getElementById("topTypeSelect");
-const bottomTypeLabel = document.getElementById("bottomTypeLabel");
 const bottomTypeSelect = document.getElementById("bottomTypeSelect");
-const sleeveLabel = document.getElementById("sleeveLabel");
 const sleeveSelect = document.getElementById("sleeveSelect");
-const dressLengthLabel = document.getElementById("dressLengthLabel");
 const dressLengthSelect = document.getElementById("dressLengthSelect");
 const colorSelect = document.getElementById("colorSelect");
+
+const topTypeRow = document.getElementById("topTypeRow");
+const bottomTypeRow = document.getElementById("bottomTypeRow");
+const sleeveRow = document.getElementById("sleeveRow");
+const dressLengthRow = document.getElementById("dressLengthRow");
 
 const saveItemBtn = document.getElementById("saveItemBtn");
 const clearClosetBtn = document.getElementById("clearClosetBtn");
@@ -108,6 +113,7 @@ function colorsMatch(a, b) {
   if (COLOR_CLASHES[b]?.includes(a)) return false;
   return true;
 }
+
 function outfitColorsOK(items) {
   for (let i = 0; i < items.length; i++) {
     for (let j = i + 1; j < items.length; j++) {
@@ -126,32 +132,39 @@ function updateConditionalFields() {
   const showSleeve = cat === "top" || cat === "dress";
   const showDressLength = cat === "dress";
 
-  topTypeLabel.classList.toggle("hidden", !showTopType);
-  bottomTypeLabel.classList.toggle("hidden", !showBottomType);
-  sleeveLabel.classList.toggle("hidden", !showSleeve);
-  dressLengthLabel.classList.toggle("hidden", !showDressLength);
+  topTypeRow.classList.toggle("hidden", !showTopType);
+  bottomTypeRow.classList.toggle("hidden", !showBottomType);
+  sleeveRow.classList.toggle("hidden", !showSleeve);
+  dressLengthRow.classList.toggle("hidden", !showDressLength);
 
   if (!showTopType) topTypeSelect.value = "";
   if (!showBottomType) bottomTypeSelect.value = "";
   if (!showSleeve) sleeveSelect.value = "";
   if (!showDressLength) dressLengthSelect.value = "";
 }
+
 categorySelect.addEventListener("change", updateConditionalFields);
 
 /* ---------- Upload handling ---------- */
 fileInput.addEventListener("change", () => {
   setUploadMsg("");
+
   const f = fileInput.files && fileInput.files[0];
+  fileNameEl.textContent = f ? f.name : "No file chosen";
+
   if (!f) return;
 
   if (!f.type.startsWith("image/")) {
     setUploadMsg("Upload an image file.");
     fileInput.value = "";
+    fileNameEl.textContent = "No file chosen";
     return;
   }
+
   if (ITEMS.length >= MAX_ITEMS) {
     setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
     fileInput.value = "";
+    fileNameEl.textContent = "No file chosen";
     return;
   }
 
@@ -168,21 +181,29 @@ fileInput.addEventListener("change", () => {
 function normalizeItemFromForm() {
   const category = categorySelect.value;
   const color = colorSelect.value;
-  const sleeveLength = sleeveSelect.value;
+
   const topType = topTypeSelect.value;
   const bottomType = bottomTypeSelect.value;
+  const sleeveLength = sleeveSelect.value;
   const dressLength = dressLengthSelect.value;
 
-  if (!pendingImageDataUrl) return { error: "Upload a photo." };
+  if (!pendingImageDataUrl) return { error: "Choose a file." };
   if (!category) return { error: "Select a category." };
   if (!color) return { error: "Select a color." };
 
-  if ((category === "top" || category === "dress") && !sleeveLength) {
-    return { error: "Select sleeve length." };
+  if (category === "top") {
+    if (!topType) return { error: "Select a subcategory." };
+    if (!sleeveLength) return { error: "Select sleeve length." };
   }
-  if (category === "top" && !topType) return { error: "Select top type." };
-  if (category === "bottom" && !bottomType) return { error: "Select bottom type." };
-  if (category === "dress" && !dressLength) return { error: "Select dress length." };
+
+  if (category === "bottom") {
+    if (!bottomType) return { error: "Select a subcategory." };
+  }
+
+  if (category === "dress") {
+    if (!sleeveLength) return { error: "Select sleeve length." };
+    if (!dressLength) return { error: "Select dress length." };
+  }
 
   const id =
     (window.crypto && crypto.randomUUID && crypto.randomUUID()) ||
@@ -204,10 +225,13 @@ function normalizeItemFromForm() {
 
 function resetUploader() {
   pendingImageDataUrl = "";
+
   imgPreview.src = "";
   imgPreview.style.display = "none";
-  previewPlaceholder.style.display = "block";
+  previewPlaceholder.style.display = "grid";
+
   fileInput.value = "";
+  if (fileNameEl) fileNameEl.textContent = "No file chosen";
 
   categorySelect.value = "";
   topTypeSelect.value = "";
@@ -228,7 +252,10 @@ saveItemBtn.addEventListener("click", () => {
   }
 
   const { item, error } = normalizeItemFromForm();
-  if (error) { setUploadMsg(error); return; }
+  if (error) {
+    setUploadMsg(error);
+    return;
+  }
 
   ITEMS.push(item);
   saveItems(profile.id, ITEMS);
@@ -251,11 +278,12 @@ clearClosetBtn.addEventListener("click", () => {
   setUploadMsg("Cleared.");
 });
 
-/* ---------- Type helpers ---------- */
+/* ---------- Type helpers (rules you already wanted) ---------- */
 function isDress(item) { return item.category === "dress"; }
 function isBottom(item) { return item.category === "bottom"; }
 function isLayer(item) {
-  return item.category === "top" && (item.topType === "cardigan" || item.topType === "sweater" || item.topType === "jacket");
+  return item.category === "top" &&
+    (item.topType === "cardigan" || item.topType === "sweater" || item.topType === "jacket");
 }
 function isShirt(item) { return item.category === "top" && item.topType === "shirt"; }
 
@@ -264,6 +292,7 @@ function canWearLayerWithTop(top, layer) {
   if (!top || top.category !== "top") return false;
   return top.sleeveLength === "short";
 }
+
 function canWearLayerWithDress(dress, layer) {
   if (!layer || !isLayer(layer)) return true;
   if (!dress || !isDress(dress)) return false;
@@ -280,6 +309,7 @@ function formatItemLabel(it) {
   if (it.category === "top") parts.push(`Top (${titleCase(it.topType)})`);
   else if (it.category === "bottom") parts.push(`Bottom (${titleCase(it.bottomType)})`);
   else parts.push(`Dress (${titleCase(it.dressLength)})`);
+
   if (it.sleeveLength) parts.push(titleCase(it.sleeveLength));
   if (it.color) parts.push(titleCase(it.color));
   return parts.join(" • ");
@@ -324,6 +354,7 @@ function renderCloset() {
 
       renderCloset();
       renderFavorites();
+      clearGeneratedOutfits();
     });
 
     btnRow.appendChild(useBtn);
@@ -349,21 +380,27 @@ function clearGeneratedOutfits() {
 function outfitIdFromItems(items) {
   return items.map(x => x.id).slice().sort().join("|");
 }
+
 function isFavorited(outfitId) {
   return FAVS.some(f => f.outfitId === outfitId);
 }
+
 function toggleFavorite(items) {
   const outfitId = outfitIdFromItems(items);
-  if (isFavorited(outfitId)) FAVS = FAVS.filter(f => f.outfitId !== outfitId);
-  else FAVS.push({ outfitId, itemIds: items.map(x => x.id), createdAt: Date.now() });
-
+  if (isFavorited(outfitId)) {
+    FAVS = FAVS.filter(f => f.outfitId !== outfitId);
+  } else {
+    FAVS.push({ outfitId, itemIds: items.map(x => x.id), createdAt: Date.now() });
+  }
   saveFavs(profile.id, FAVS);
   renderFavorites();
 }
+
 function pruneFavorites() {
   const existing = new Set(ITEMS.map(i => i.id));
   FAVS = FAVS.filter(f => f.itemIds.every(id => existing.has(id)));
 }
+
 function resolveFavOutfit(fav) {
   const map = new Map(ITEMS.map(i => [i.id, i]));
   const items = fav.itemIds.map(id => map.get(id)).filter(Boolean);
@@ -424,11 +461,11 @@ function renderFavorites() {
   });
 }
 
-/* ---------- Outfits ---------- */
+/* ---------- Outfit matches ---------- */
 function renderOutfits(selected, outfits) {
   outfitsGrid.innerHTML = "";
-  setOutfitMsg("");
   selectedLabel.textContent = `Selected: ${formatItemLabel(selected)}`;
+  setOutfitMsg("");
 
   if (!outfits.length) {
     setOutfitMsg("No outfits found.");
@@ -480,6 +517,7 @@ function renderOutfits(selected, outfits) {
 
     card.appendChild(grid);
     card.appendChild(meta);
+
     outfitsGrid.appendChild(card);
   });
 }
@@ -510,17 +548,22 @@ function generateOutfits(selected) {
     outfits.push(items);
   }
 
+  // Layer selected
   if (isLayer(selected)) {
     shirts.filter(t => t.sleeveLength === "short").forEach((top) => {
       bottoms.forEach((bottom) => maybeAdd([selected, top, bottom]));
     });
+
     dresses.filter(d => d.sleeveLength === "sleeveless" || d.sleeveLength === "short")
       .forEach((dress) => maybeAdd([selected, dress]));
+
     return uniqOutfits(outfits);
   }
 
+  // Shirt selected
   if (isShirt(selected)) {
     bottoms.forEach((bottom) => maybeAdd([selected, bottom]));
+
     if (selected.sleeveLength === "short") {
       layers.forEach((layer) => {
         bottoms.forEach((bottom) => {
@@ -529,23 +572,29 @@ function generateOutfits(selected) {
         });
       });
     }
+
     return uniqOutfits(outfits);
   }
 
+  // Dress selected
   if (isDress(selected)) {
     maybeAdd([selected]);
+
     if (selected.sleeveLength === "sleeveless" || selected.sleeveLength === "short") {
       layers.forEach((layer) => {
         if (!canWearLayerWithDress(selected, layer)) return;
         maybeAdd([layer, selected]);
       });
     }
+
     return uniqOutfits(outfits);
   }
 
+  // Bottom selected
   if (isBottom(selected)) {
     shirts.forEach((top) => {
       maybeAdd([top, selected]);
+
       if (top.sleeveLength === "short") {
         layers.forEach((layer) => {
           if (!canWearLayerWithTop(top, layer)) return;
@@ -553,6 +602,7 @@ function generateOutfits(selected) {
         });
       }
     });
+
     return uniqOutfits(outfits);
   }
 
@@ -570,4 +620,5 @@ function init() {
   renderFavorites();
   setUploadMsg(`Closet: ${ITEMS.length}/${MAX_ITEMS}`);
 }
+
 init();
