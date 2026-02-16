@@ -1,21 +1,32 @@
-const PROFILE_KEY="buildmyoutfit_profile_v1";
+// Fake login (password ignored)
+const PROFILE_KEY = "buildmyoutfit_profile_v1";
 
-const usernameInput=document.getElementById("usernameInput");
-const loginBtn=document.getElementById("loginBtn");
-const guestBtn=document.getElementById("guestBtn");
+const usernameInput = document.getElementById("usernameInput");
+const loginBtn = document.getElementById("loginBtn");
+const guestBtn = document.getElementById("guestBtn");
+const authMsg = document.getElementById("authMsg");
 
-function makeId(n){
-return "p_"+n.toLowerCase().replace(/[^a-z0-9]/g,"_");
+function makeId(name) {
+  return (
+    "p_" +
+    (name || "guest")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .slice(0, 24)
+  );
 }
 
-loginBtn.onclick=()=>{
-const name=usernameInput.value.trim();
-if(!name) return;
-localStorage.setItem(PROFILE_KEY,JSON.stringify({id:makeId(name),name}));
-location.href="app.html";
-};
+loginBtn.addEventListener("click", () => {
+  const name = (usernameInput.value || "").trim();
+  if (!name) {
+    authMsg.textContent = "Enter a username.";
+    return;
+  }
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ id: makeId(name), name }));
+  location.href = "app.html";
+});
 
-guestBtn.onclick=()=>{
-localStorage.setItem(PROFILE_KEY,JSON.stringify({id:"guest",name:"Guest"}));
-location.href="app.html";
-};
+guestBtn.addEventListener("click", () => {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ id: "guest", name: "Guest" }));
+  location.href = "app.html";
+});
