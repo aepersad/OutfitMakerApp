@@ -1,8 +1,12 @@
-const PROFILE_KEY = "outfitmatcher_profile_v5";
+// Fake login: stores a profile locally and routes to app.html.
+// Password is ignored (UI-only).
 
-const displayNameInput = document.getElementById("displayNameInput");
-const continueBtn = document.getElementById("continueBtn");
-const continueGuestBtn = document.getElementById("continueGuestBtn");
+const PROFILE_KEY = "buildmyoutfit_profile_v1";
+
+const usernameInput = document.getElementById("usernameInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginBtn = document.getElementById("loginBtn");
+const guestBtn = document.getElementById("guestBtn");
 const authMsg = document.getElementById("authMsg");
 
 function makeProfileId(name) {
@@ -21,22 +25,24 @@ function goToApp() {
   window.location.href = "app.html";
 }
 
-continueBtn.addEventListener("click", () => {
-  const name = (displayNameInput.value || "").trim();
-  if (!name) {
-    authMsg.textContent = "Enter a name or continue as guest.";
+loginBtn.addEventListener("click", () => {
+  const username = (usernameInput.value || "").trim();
+  if (!username) {
+    authMsg.textContent = "Enter a username.";
     return;
   }
-  saveProfile({ id: makeProfileId(name), name });
+
+  // Password intentionally ignored for fake login
+  saveProfile({ id: makeProfileId(username), name: username });
   goToApp();
 });
 
-continueGuestBtn.addEventListener("click", () => {
+guestBtn.addEventListener("click", () => {
   saveProfile({ id: makeProfileId("guest"), name: "Guest" });
   goToApp();
 });
 
-// If already set, go straight to app
+// If already "logged in", go straight to app
 try {
   const existing = localStorage.getItem(PROFILE_KEY);
   if (existing) goToApp();
