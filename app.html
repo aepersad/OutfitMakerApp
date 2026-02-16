@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Outfit Matcher</title>
+  <title>Build My Outfit</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="header">
-    <h1>Outfit Matcher</h1>
+    <h1>Build My Outfit</h1>
     <div class="topbar">
       <div id="profileLabel" class="chip"></div>
       <button id="logoutBtn" class="small-btn" type="button">Log out</button>
@@ -16,19 +16,17 @@
   </header>
 
   <main class="container">
-    <!-- Uploader -->
+    <!-- Upload + Dropdowns -->
     <section class="card">
       <div class="closet-head">
-        <h2>Add Clothing Item</h2>
-        <div class="closet-meta">
-          <span id="maxCount">10</span>
-        </div>
+        <h2>Add Item</h2>
+        <div class="closet-meta"><span id="closetCount">0/10</span></div>
       </div>
 
       <div class="uploader">
         <div class="upload-left">
           <label class="file-btn">
-            Choose Photo
+            Upload Photo
             <input id="fileInput" type="file" accept="image/*" />
           </label>
 
@@ -117,8 +115,7 @@
           </div>
 
           <div class="actions">
-            <button id="saveItemBtn" type="button" class="primary" disabled>Save Item</button>
-            <button id="saveAndUseBtn" type="button" class="primary" disabled>Save &amp; Use</button>
+            <button id="saveItemBtn" type="button" class="primary">Save Item</button>
             <button id="clearClosetBtn" type="button" class="danger">Clear Closet</button>
           </div>
 
@@ -127,25 +124,21 @@
       </div>
     </section>
 
-    <!-- Closet -->
+    <!-- Closet (GRID) -->
     <section class="card">
       <div class="closet-head">
-        <h2>Your Closet</h2>
-        <div class="closet-meta">
-          <span id="closetCount">0/10</span>
-        </div>
+        <h2>Closet</h2>
+        <div class="closet-meta"><span id="maxCount">10</span></div>
       </div>
-
       <div id="closetGrid" class="closet-grid"></div>
     </section>
 
-    <!-- Outfits -->
+    <!-- Results under closet -->
     <section class="card">
       <div class="outfits-head">
-        <h2>Generated Outfits</h2>
+        <h2>Results</h2>
         <div class="muted" id="selectedLabel">Select an item.</div>
       </div>
-
       <div id="outfitsGrid" class="outfits-grid"></div>
       <p id="outfitMsg" class="muted"></p>
     </section>
