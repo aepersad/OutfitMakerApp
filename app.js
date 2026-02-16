@@ -73,6 +73,7 @@ const dressLengthSelect = document.getElementById("dressLengthSelect");
 const colorSelect = document.getElementById("colorSelect");
 
 const saveItemBtn = document.getElementById("saveItemBtn");
+const saveAndUseBtn = document.getElementById("saveAndUseBtn");
 const clearClosetBtn = document.getElementById("clearClosetBtn");
 const uploadMsg = document.getElementById("uploadMsg");
 
@@ -135,8 +136,46 @@ function updateConditionalFields() {
   if (!showBottomType) bottomTypeSelect.value = "";
   if (!showSleeve) sleeveSelect.value = "";
   if (!showDressLength) dressLengthSelect.value = "";
+
+  updateActionButtons();
 }
 categorySelect.addEventListener("change", updateConditionalFields);
+
+/* ---------- Enable/disable action buttons ---------- */
+function formIsComplete() {
+  const cat = categorySelect.value;
+  const color = colorSelect.value;
+
+  if (!pendingImageDataUrl) return false;
+  if (!cat) return false;
+  if (!color) return false;
+
+  if (cat === "top") {
+    if (!topTypeSelect.value) return false;
+    if (!sleeveSelect.value) return false;
+  }
+
+  if (cat === "bottom") {
+    if (!bottomTypeSelect.value) return false;
+  }
+
+  if (cat === "dress") {
+    if (!sleeveSelect.value) return false;
+    if (!dressLengthSelect.value) return false;
+  }
+
+  return true;
+}
+
+function updateActionButtons() {
+  const ok = formIsComplete();
+  saveItemBtn.disabled = !ok;
+  saveAndUseBtn.disabled = !ok;
+}
+
+[topTypeSelect, bottomTypeSelect, sleeveSelect, dressLengthSelect, colorSelect].forEach(el => {
+  el.addEventListener("change", updateActionButtons);
+});
 
 /* ---------- Upload handling ---------- */
 fileInput.addEventListener("change", () => {
@@ -161,6 +200,7 @@ fileInput.addEventListener("change", () => {
     imgPreview.src = pendingImageDataUrl;
     imgPreview.style.display = "block";
     previewPlaceholder.style.display = "none";
+    updateActionButtons();
   };
   reader.readAsDataURL(f);
 });
@@ -223,25 +263,42 @@ function resetUploader() {
   colorSelect.value = "";
 
   updateConditionalFields();
+  updateActionButtons();
+}
+
+function saveNewItem() {
+  if (ITEMS.length >= MAX_ITEMS) {
+    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
+    return null;
+  }
+
+  const { item, error } = normalizeItemFromForm();
+  if (error) {
+    setUploadMsg(error);
+    return null;
+  }
+
+  ITEMS.push(item);
+  saveItems(profile.id, ITEMS);
+  renderCloset();
+  closetCountEl.textContent = `${ITEMS.length}/${MAX_ITEMS}`;
+  setUploadMsg(`Saved (${ITEMS.length}/${MAX_ITEMS}).`);
+  return item;
 }
 
 saveItemBtn.addEventListener("click", () => {
   setUploadMsg("");
-
-  if (ITEMS.length >= MAX_ITEMS) {
-    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
-    return;
-  }
-
-  const { item, error } = normalizeItemFromForm();
-  if (error) { setUploadMsg(error); return; }
-
-  ITEMS.push(item);
-  saveItems(profile.id, ITEMS);
-
-  renderCloset();
+  const item = saveNewItem();
+  if (!item) return;
   resetUploader();
-  setUploadMsg(`Saved (${ITEMS.length}/${MAX_ITEMS}).`);
+});
+
+saveAndUseBtn.addEventListener("click", () => {
+  setUploadMsg("");
+  const item = saveNewItem();
+  if (!item) return;
+  resetUploader();
+  generateAndRenderOutfits(item);
 });
 
 clearClosetBtn.addEventListener("click", () => {
@@ -287,7 +344,6 @@ function formatItemLabel(it) {
   if (it.category === "top") parts.push(`Top (${titleCase(it.topType)})`);
   else if (it.category === "bottom") parts.push(`Bottom (${titleCase(it.bottomType)})`);
   else parts.push(`Dress (${titleCase(it.dressLength)})`);
-
   if (it.sleeveLength) parts.push(titleCase(it.sleeveLength));
   if (it.color) parts.push(titleCase(it.color));
   return parts.join(" • ");
@@ -296,8 +352,6 @@ function formatItemLabel(it) {
 function renderCloset() {
   closetGrid.innerHTML = "";
   closetCountEl.textContent = `${ITEMS.length}/${MAX_ITEMS}`;
-
-  if (ITEMS.length === 0) return;
 
   ITEMS.forEach((it) => {
     const card = document.createElement("div");
@@ -345,6 +399,7 @@ function renderCloset() {
 
     card.appendChild(img);
     card.appendChild(body);
+
     closetGrid.appendChild(card);
   });
 }
@@ -390,7 +445,6 @@ function renderFavorites() {
   if (!FAVS.length) return;
 
   const ordered = [...FAVS].sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-
   ordered.forEach((fav) => {
     const items = resolveFavOutfit(fav);
     if (!items) return;
@@ -579,6 +633,7 @@ function init() {
   updateConditionalFields();
   renderCloset();
   renderFavorites();
+  updateActionButtons();
   setUploadMsg(`Closet: ${ITEMS.length}/${MAX_ITEMS}`);
 }
 init();
