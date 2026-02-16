@@ -29,14 +29,19 @@ const imgPreview = document.getElementById("imgPreview");
 const previewPlaceholder = document.getElementById("previewPlaceholder");
 
 const categorySelect = document.getElementById("categorySelect");
-const topTypeRow = document.getElementById("topTypeRow");
+
+const topTypeGroup = document.getElementById("topTypeGroup");
 const topTypeSelect = document.getElementById("topTypeSelect");
-const bottomTypeRow = document.getElementById("bottomTypeRow");
+
+const bottomTypeGroup = document.getElementById("bottomTypeGroup");
 const bottomTypeSelect = document.getElementById("bottomTypeSelect");
-const sleeveRow = document.getElementById("sleeveRow");
+
+const sleeveGroup = document.getElementById("sleeveGroup");
 const sleeveSelect = document.getElementById("sleeveSelect");
-const dressLengthRow = document.getElementById("dressLengthRow");
+
+const dressLengthGroup = document.getElementById("dressLengthGroup");
 const dressLengthSelect = document.getElementById("dressLengthSelect");
+
 const colorSelect = document.getElementById("colorSelect");
 
 const saveItemBtn = document.getElementById("saveItemBtn");
@@ -95,31 +100,29 @@ function uuid() {
   return (crypto?.randomUUID?.()) || `id_${Date.now()}_${Math.floor(Math.random()*1e6)}`;
 }
 
-/* ---------- Conditional fields (show/hide) ---------- */
+/* ---------- Conditional fields (exactly as requested) ---------- */
 function updateConditionalFields() {
   const c = categorySelect.value;
 
-  const showTop = c === "top";
-  const showBottom = c === "bottom";
-  const showSleeve = (c === "top" || c === "dress");
-  const showDressLen = c === "dress";
+  const isTop = c === "top";
+  const isBottom = c === "bottom";
+  const isDress = c === "dress";
 
-  topTypeRow.classList.toggle("hidden", !showTop);
-  topTypeSelect.classList.toggle("hidden", !showTop);
+  // Show only matching groups
+  topTypeGroup.classList.toggle("hidden", !isTop);
+  bottomTypeGroup.classList.toggle("hidden", !isBottom);
 
-  bottomTypeRow.classList.toggle("hidden", !showBottom);
-  bottomTypeSelect.classList.toggle("hidden", !showBottom);
+  // Sleeve length for Tops + Dresses
+  sleeveGroup.classList.toggle("hidden", !(isTop || isDress));
 
-  sleeveRow.classList.toggle("hidden", !showSleeve);
-  sleeveSelect.classList.toggle("hidden", !showSleeve);
+  // Dress length only for Dresses
+  dressLengthGroup.classList.toggle("hidden", !isDress);
 
-  dressLengthRow.classList.toggle("hidden", !showDressLen);
-  dressLengthSelect.classList.toggle("hidden", !showDressLen);
-
-  if (!showTop) topTypeSelect.value = "";
-  if (!showBottom) bottomTypeSelect.value = "";
-  if (!showSleeve) sleeveSelect.value = "";
-  if (!showDressLen) dressLengthSelect.value = "";
+  // Clear anything not applicable
+  if (!isTop) topTypeSelect.value = "";
+  if (!isBottom) bottomTypeSelect.value = "";
+  if (!(isTop || isDress)) sleeveSelect.value = "";
+  if (!isDress) dressLengthSelect.value = "";
 }
 
 categorySelect.addEventListener("change", updateConditionalFields);
@@ -169,15 +172,18 @@ function normalizeItemFromForm() {
   if (!category) return { error: "Select a category." };
   if (!color) return { error: "Select a color." };
 
+  // Top -> needs topType + sleeve
   if (category === "top") {
-    if (!topType) return { error: "Select a subcategory." };
+    if (!topType) return { error: "Select a top type." };
     if (!sleeveLength) return { error: "Select sleeve length." };
   }
 
+  // Bottom -> needs bottomType only
   if (category === "bottom") {
-    if (!bottomType) return { error: "Select a subcategory." };
+    if (!bottomType) return { error: "Select a bottom type." };
   }
 
+  // Dress -> needs sleeve + dress length
   if (category === "dress") {
     if (!sleeveLength) return { error: "Select sleeve length." };
     if (!dressLength) return { error: "Select dress length." };
@@ -259,7 +265,7 @@ function isDress(item) {
   return item.category === "dress";
 }
 
-// Layer can only be worn with short sleeve top OR sleeveless/short sleeve dress
+// Layer only with short sleeve top OR sleeveless/short sleeve dress
 function layerAllowedWithTop(top) {
   return top && top.category === "top" && top.sleeveLength === "short";
 }
@@ -268,13 +274,13 @@ function layerAllowedWithDress(dress) {
     (dress.sleeveLength === "sleeveless" || dress.sleeveLength === "short");
 }
 
-// Color pairing hook (simple neutral-safe by default; you can replace this)
+// Color pairing hook (neutral-safe baseline)
 const NEUTRALS = ["black","white","gray","navy","beige","cream","brown","denim_blue"];
 function colorsCompatible(a, b) {
   if (!a || !b) return true;
   if (a === b) return true;
   if (NEUTRALS.includes(a) || NEUTRALS.includes(b)) return true;
-  return true; // keep permissive; you can tighten later
+  return true; // you can tighten later
 }
 function outfitColorsOK(items) {
   for (let i=0;i<items.length;i++){
@@ -306,28 +312,25 @@ function generateOutfits(selected) {
   const outfits = [];
 
   function add(items) {
-    // must include selected
     if (!items.some(x => x.id === selected.id)) return;
     if (!outfitColorsOK(items)) return;
     outfits.push(items);
   }
 
-  // If selected is a layer
+  // Layer selected
   if (isLayer(selected)) {
     shirts.forEach(top => {
       if (!layerAllowedWithTop(top)) return;
       bottoms.forEach(bottom => add([selected, top, bottom]));
     });
-
     dresses.forEach(dress => {
       if (!layerAllowedWithDress(dress)) return;
       add([selected, dress]);
     });
-
     return uniqOutfits(outfits);
   }
 
-  // If selected is a shirt
+  // Shirt selected
   if (isShirt(selected)) {
     bottoms.forEach(bottom => add([selected, bottom]));
     if (layerAllowedWithTop(selected)) {
@@ -338,7 +341,7 @@ function generateOutfits(selected) {
     return uniqOutfits(outfits);
   }
 
-  // If selected is a dress
+  // Dress selected
   if (isDress(selected)) {
     add([selected]);
     if (layerAllowedWithDress(selected)) {
@@ -347,7 +350,7 @@ function generateOutfits(selected) {
     return uniqOutfits(outfits);
   }
 
-  // If selected is a bottom
+  // Bottom selected
   if (isBottom(selected)) {
     shirts.forEach(top => {
       add([top, selected]);
