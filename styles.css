@@ -330,3 +330,37 @@ button.danger {
   .closet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .outfits-grid { grid-template-columns: 1fr; }
 }
+/* ===== Professional backgrounds ===== */
+
+/* Main app: subtle, clean */
+.app-bg {
+  background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(17, 24, 39, 0.06), transparent 60%),
+    radial-gradient(900px 500px at 90% 20%, rgba(17, 24, 39, 0.05), transparent 55%),
+    linear-gradient(#f6f6f7, #f4f5f6);
+}
+
+/* Login: dark navy with clothing outline pattern (shirts/dresses/bottoms only) */
+.login-bg {
+  background-color: #071a33;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.22' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3C!-- shirt --%3E%3Cg transform='translate(40 50) rotate(-14)'%3E%3Cpath d='M35 20l-18 10 12 18v55c0 6 5 11 11 11h50c6 0 11-5 11-11V48l12-18-18-10-12 10H59z'/%3E%3Cpath d='M59 30c10 0 18-6 18-14'/%3E%3Cpath d='M59 30c-10 0-18-6-18-14'/%3E%3C/g%3E%3C!-- dress --%3E%3Cg transform='translate(255 55) rotate(10)'%3E%3Cpath d='M55 20c10 0 18-7 18-15M55 20c-10 0-18-7-18-15'/%3E%3Cpath d='M38 22l-10 28 18 68c1 4 4 7 8 7h22c4 0 7-3 8-7l18-68-10-28-12 10H50z'/%3E%3C/g%3E%3C!-- bottoms/pants --%3E%3Cg transform='translate(70 265) rotate(12)'%3E%3Cpath d='M40 20h70l-10 85c-1 6-5 10-11 10H76l-6-45-6 45H51c-6 0-10-4-11-10z'/%3E%3Cpath d='M75 20l-5 50'/%3E%3C/g%3E%3C!-- repeat icons --%3E%3Cg transform='translate(280 260) rotate(-18)'%3E%3Cpath d='M35 20l-18 10 12 18v55c0 6 5 11 11 11h50c6 0 11-5 11-11V48l12-18-18-10-12 10H59z'/%3E%3C/g%3E%3Cg transform='translate(175 170) rotate(-6)'%3E%3Cpath d='M38 22l-10 28 18 68c1 4 4 7 8 7h22c4 0 7-3 8-7l18-68-10-28-12 10H50z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: 520px 520px;
+  background-repeat: repeat;
+}
+
+/* Make login card feel premium on the busy bg */
+.login-bg .auth-page.card {
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+}
+
+.login-bg .header h1 {
+  color: rgba(255,255,255,0.96);
+}
+
+/* Keep app header readable if you use app-bg */
+.app-bg .header h1 {
+  color: #111827;
+}
