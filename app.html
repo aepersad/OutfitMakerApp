@@ -18,8 +18,12 @@
   <main class="container">
     <!-- Uploader -->
     <section class="card">
-      <h2>Add Clothing Item</h2>
-      <p class="muted">Closet max: <span id="maxCount">10</span></p>
+      <div class="closet-head">
+        <h2>Add Clothing Item</h2>
+        <div class="closet-meta">
+          <span id="maxCount">10</span>
+        </div>
+      </div>
 
       <div class="uploader">
         <div class="upload-left">
@@ -102,7 +106,6 @@
                 <option value="cream">Cream</option>
                 <option value="brown">Brown</option>
                 <option value="denim_blue">Denim/Blue</option>
-
                 <option value="red">Red</option>
                 <option value="pink">Pink</option>
                 <option value="green">Green</option>
@@ -114,7 +117,8 @@
           </div>
 
           <div class="actions">
-            <button id="saveItemBtn" type="button" class="primary">Save Item</button>
+            <button id="saveItemBtn" type="button" class="primary" disabled>Save Item</button>
+            <button id="saveAndUseBtn" type="button" class="primary" disabled>Save &amp; Use</button>
             <button id="clearClosetBtn" type="button" class="danger">Clear Closet</button>
           </div>
 
@@ -131,6 +135,7 @@
           <span id="closetCount">0/10</span>
         </div>
       </div>
+
       <div id="closetGrid" class="closet-grid"></div>
     </section>
 
@@ -140,6 +145,7 @@
         <h2>Generated Outfits</h2>
         <div class="muted" id="selectedLabel">Select an item.</div>
       </div>
+
       <div id="outfitsGrid" class="outfits-grid"></div>
       <p id="outfitMsg" class="muted"></p>
     </section>
