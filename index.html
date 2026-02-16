@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Outfit Matcher • Login</title>
+  <title>Outfit Matcher</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="header">
     <h1>Outfit Matcher</h1>
-    <p class="sub">Demo / local profile (no password). Data stays in your browser.</p>
   </header>
 
   <main class="container">
     <section class="card auth-page">
-      <h2>Choose a profile</h2>
-      <p class="muted">This is not real authentication. It just stores your name, closet, and favorites locally.</p>
+      <h2>Login</h2>
 
       <label class="auth-label">
-        Display name (optional)
-        <input id="displayNameInput" class="text-input" type="text" maxlength="32" placeholder="e.g., Ava" />
+        Name
+        <input id="displayNameInput" class="text-input" type="text" maxlength="32" placeholder="Enter your name" />
       </label>
 
       <div class="auth-actions">
@@ -30,10 +28,6 @@
       <p id="authMsg" class="muted"></p>
     </section>
   </main>
-
-  <footer class="footer">
-    <p class="muted">Built with vanilla HTML/CSS/JS</p>
-  </footer>
 
   <script src="login.js"></script>
 </body>
