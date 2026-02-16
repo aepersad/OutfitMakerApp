@@ -275,7 +275,7 @@ function layerAllowedWithDress(dress) {
 }
 
 // Color pairing hook (neutral-safe baseline)
-const NEUTRALS = ["black","white","gray","navy","beige","cream","brown","denim_blue"];
+const NEUTRALS = ["black","white","gray","blue","beige","cream","brown","denim_blue"];
 function colorsCompatible(a, b) {
   if (!a || !b) return true;
   if (a === b) return true;
