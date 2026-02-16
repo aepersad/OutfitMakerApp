@@ -184,7 +184,7 @@ button{
   flex-direction:column;
 }
 
-/* ✅ FIXED PREVIEW (never grows / never blocks form) */
+/* ✅ FIXED PREVIEW */
 .preview{
   border:1px dashed rgba(0,0,0,0.35);
   height:200px;
@@ -209,6 +209,10 @@ button{
   place-items:center;
   color:#555;
   font-weight:700;
+}
+
+.hidden{
+  display:none !important;
 }
 
 /* CLOSET GRID */
