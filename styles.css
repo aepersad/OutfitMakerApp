@@ -1,4 +1,3 @@
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
+.auth-page { max-width: 560px; margin: 0 auto; }
+.auth-grid { grid-template-columns: 1fr; }
+.auth-actions-row { display: flex; gap: 10px; }
