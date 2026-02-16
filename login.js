@@ -1,10 +1,10 @@
-// Fake login: stores a profile locally and routes to app.html.
-// Password is ignored (UI-only).
+// Fake login: stores username locally and routes to app.html.
+// Password is UI-only and ignored.
 
 const PROFILE_KEY = "buildmyoutfit_profile_v1";
 
 const usernameInput = document.getElementById("usernameInput");
-const passwordInput = document.getElementById("passwordInput");
+const passwordInput = document.getElementById("passwordInput"); // intentionally unused
 const loginBtn = document.getElementById("loginBtn");
 const guestBtn = document.getElementById("guestBtn");
 const authMsg = document.getElementById("authMsg");
@@ -32,7 +32,6 @@ loginBtn.addEventListener("click", () => {
     return;
   }
 
-  // Password intentionally ignored for fake login
   saveProfile({ id: makeProfileId(username), name: username });
   goToApp();
 });
@@ -42,7 +41,7 @@ guestBtn.addEventListener("click", () => {
   goToApp();
 });
 
-// If already "logged in", go straight to app
+// If profile exists, go straight to app
 try {
   const existing = localStorage.getItem(PROFILE_KEY);
   if (existing) goToApp();
