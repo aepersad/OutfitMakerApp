@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Outfit Matcher</title>
+  <title>Build My Outfit</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="header">
-    <h1>Outfit Matcher</h1>
+    <h1>Build My Outfit</h1>
   </header>
 
   <main class="container">
     <section class="card auth-page">
       <h2>Login</h2>
 
-      <label class="auth-label">
-        Name
-        <input id="displayNameInput" class="text-input" type="text" maxlength="32" placeholder="Enter your name" />
-      </label>
+      <div class="grid auth-grid">
+        <label>
+          Username
+          <input id="usernameInput" class="text-input" type="text" maxlength="32" placeholder="Username" />
+        </label>
 
-      <div class="auth-actions">
-        <button id="continueBtn" class="primary" type="button">Continue</button>
-        <button id="continueGuestBtn" type="button">Continue as Guest</button>
+        <label>
+          Password
+          <input id="passwordInput" class="text-input" type="password" placeholder="Password" />
+        </label>
+      </div>
+
+      <div class="actions auth-actions-row">
+        <button id="loginBtn" class="primary" type="button">Login</button>
+        <button id="guestBtn" type="button">Continue as Guest</button>
       </div>
 
       <p id="authMsg" class="muted"></p>
