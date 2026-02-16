@@ -1,146 +1,167 @@
-<main class="container">
-  <!-- TOP RECTANGULAR UPLOAD BOX -->
-  <section class="card upload-rect">
-    <div class="section-head">
-      <h2>Add Item</h2>
-      <div class="meta"><span id="closetCount">0/10</span></div>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Build My Outfit</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Build My Outfit</h1>
+    <div class="topbar">
+      <div id="profileLabel" class="chip"></div>
+      <button id="logoutBtn" class="small-btn" type="button">Log out</button>
     </div>
+  </header>
 
-    <div class="upload-rect-body">
-      <!-- LEFT: Choose file + filename + preview -->
-      <div class="upload-left">
-        <div class="file-row">
-          <label class="choose-file-btn">
-            Choose File
-            <input id="fileInput" type="file" accept="image/*" />
-          </label>
-          <div id="fileName" class="file-name">No file chosen</div>
-        </div>
-
-        <div class="preview preview--rect">
-          <img id="imgPreview" alt="preview" />
-          <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
-        </div>
+  <main class="container">
+    <!-- TOP RECTANGULAR UPLOAD BOX -->
+    <section class="card upload-rect">
+      <div class="section-head">
+        <h2>Add Item</h2>
+        <div class="meta"><span id="closetCount">0/10</span></div>
       </div>
 
-      <!-- RIGHT: 4 dropdowns -->
-      <div class="upload-right">
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="categorySelect">Category</label>
-            <select id="categorySelect">
-              <option value="">Select…</option>
-              <option value="top">Top</option>
-              <option value="bottom">Bottom</option>
-              <option value="dress">Dress</option>
-            </select>
+      <div class="upload-rect-body">
+        <!-- LEFT: Choose file + filename + preview -->
+        <div class="upload-left">
+          <div class="file-row">
+            <label class="choose-file-btn">
+              Choose File
+              <input id="fileInput" type="file" accept="image/*" />
+            </label>
+            <div id="fileName" class="file-name">No file chosen</div>
           </div>
 
-          <!-- Subcategory: Top -->
-          <div class="form-row hidden" id="topTypeRow">
-            <label for="topTypeSelect">Subcategory</label>
-            <select id="topTypeSelect">
-              <option value="">Select…</option>
-              <option value="shirt">Shirt</option>
-              <option value="cardigan">Cardigan</option>
-              <option value="sweater">Sweater</option>
-              <option value="jacket">Jacket</option>
-            </select>
-          </div>
-
-          <!-- Subcategory: Bottom -->
-          <div class="form-row hidden" id="bottomTypeRow">
-            <label for="bottomTypeSelect">Subcategory</label>
-            <select id="bottomTypeSelect">
-              <option value="">Select…</option>
-              <option value="jeans">Jeans</option>
-              <option value="leggings">Leggings</option>
-              <option value="sweatpants">Sweatpants</option>
-              <option value="trousers">Trousers</option>
-              <option value="shorts">Shorts</option>
-              <option value="skirt">Skirt</option>
-            </select>
-          </div>
-
-          <!-- Sleeve length (top/dress only) -->
-          <div class="form-row hidden" id="sleeveRow">
-            <label for="sleeveSelect">Sleeve length</label>
-            <select id="sleeveSelect">
-              <option value="">Select…</option>
-              <option value="sleeveless">Sleeveless</option>
-              <option value="short">Short</option>
-              <option value="long">Long</option>
-            </select>
-          </div>
-
-          <!-- Dress length (dress only) -->
-          <div class="form-row hidden" id="dressLengthRow">
-            <label for="dressLengthSelect">Dress length</label>
-            <select id="dressLengthSelect">
-              <option value="">Select…</option>
-              <option value="mini">Mini</option>
-              <option value="midi">Midi</option>
-              <option value="maxi">Maxi</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="colorSelect">Color</label>
-            <select id="colorSelect">
-              <option value="">Select…</option>
-              <option value="black">Black</option>
-              <option value="white">White</option>
-              <option value="gray">Gray</option>
-              <option value="navy">Navy</option>
-              <option value="beige">Beige</option>
-              <option value="cream">Cream</option>
-              <option value="brown">Brown</option>
-              <option value="denim_blue">Denim/Blue</option>
-              <option value="red">Red</option>
-              <option value="pink">Pink</option>
-              <option value="green">Green</option>
-              <option value="purple">Purple</option>
-              <option value="yellow">Yellow</option>
-              <option value="orange">Orange</option>
-            </select>
+          <div class="preview preview--rect">
+            <img id="imgPreview" alt="preview" />
+            <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
           </div>
         </div>
 
-        <div class="actions">
-          <button id="saveItemBtn" type="button" class="primary">Save Item</button>
-          <button id="clearClosetBtn" type="button" class="danger">Clear Closet</button>
-        </div>
+        <!-- RIGHT: dropdowns -->
+        <div class="upload-right">
+          <div class="form-grid">
+            <div class="form-row">
+              <label for="categorySelect">Category</label>
+              <select id="categorySelect">
+                <option value="">Select…</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="dress">Dress</option>
+              </select>
+            </div>
 
-        <p id="uploadMsg" class="muted"></p>
+            <!-- Subcategory: Top -->
+            <div class="form-row hidden" id="topTypeRow">
+              <label for="topTypeSelect">Subcategory</label>
+              <select id="topTypeSelect">
+                <option value="">Select…</option>
+                <option value="shirt">Shirt</option>
+                <option value="cardigan">Cardigan</option>
+                <option value="sweater">Sweater</option>
+                <option value="jacket">Jacket</option>
+              </select>
+            </div>
+
+            <!-- Subcategory: Bottom -->
+            <div class="form-row hidden" id="bottomTypeRow">
+              <label for="bottomTypeSelect">Subcategory</label>
+              <select id="bottomTypeSelect">
+                <option value="">Select…</option>
+                <option value="jeans">Jeans</option>
+                <option value="leggings">Leggings</option>
+                <option value="sweatpants">Sweatpants</option>
+                <option value="trousers">Trousers</option>
+                <option value="shorts">Shorts</option>
+                <option value="skirt">Skirt</option>
+              </select>
+            </div>
+
+            <!-- Sleeve length (top/dress only) -->
+            <div class="form-row hidden" id="sleeveRow">
+              <label for="sleeveSelect">Sleeve length</label>
+              <select id="sleeveSelect">
+                <option value="">Select…</option>
+                <option value="sleeveless">Sleeveless</option>
+                <option value="short">Short</option>
+                <option value="long">Long</option>
+              </select>
+            </div>
+
+            <!-- Dress length (dress only) -->
+            <div class="form-row hidden" id="dressLengthRow">
+              <label for="dressLengthSelect">Dress length</label>
+              <select id="dressLengthSelect">
+                <option value="">Select…</option>
+                <option value="mini">Mini</option>
+                <option value="midi">Midi</option>
+                <option value="maxi">Maxi</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="colorSelect">Color</label>
+              <select id="colorSelect">
+                <option value="">Select…</option>
+                <option value="black">Black</option>
+                <option value="white">White</option>
+                <option value="gray">Gray</option>
+                <option value="navy">Navy</option>
+                <option value="beige">Beige</option>
+                <option value="cream">Cream</option>
+                <option value="brown">Brown</option>
+                <option value="denim_blue">Denim/Blue</option>
+                <option value="red">Red</option>
+                <option value="pink">Pink</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="yellow">Yellow</option>
+                <option value="orange">Orange</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="saveItemBtn" type="button" class="primary">Save Item</button>
+            <button id="clearClosetBtn" type="button" class="danger">Clear Closet</button>
+          </div>
+
+          <p id="uploadMsg" class="muted"></p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- MY CLOSET -->
-  <section class="card">
-    <div class="section-head">
-      <h2>My Closet</h2>
-      <div class="meta"><span id="maxCount">10</span></div>
-    </div>
-    <div id="closetGrid" class="closet-grid"></div>
-  </section>
+    <!-- MY CLOSET -->
+    <section class="card">
+      <div class="section-head">
+        <h2>My Closet</h2>
+        <div class="meta"><span id="maxCount">10</span></div>
+      </div>
+      <div id="closetGrid" class="closet-grid"></div>
+    </section>
 
-  <!-- OUTFIT MATCHES -->
-  <section class="card">
-    <div class="section-head">
-      <h2>Outfit Matches</h2>
-      <div class="meta" id="selectedLabel">Select an item.</div>
-    </div>
-    <div id="outfitsGrid" class="outfits-grid"></div>
-    <p id="outfitMsg" class="muted"></p>
-  </section>
+    <!-- OUTFIT MATCHES -->
+    <section class="card">
+      <div class="section-head">
+        <h2>Outfit Matches</h2>
+        <div class="meta" id="selectedLabel">Select an item.</div>
+      </div>
+      <div id="outfitsGrid" class="outfits-grid"></div>
+      <p id="outfitMsg" class="muted"></p>
+    </section>
 
-  <!-- Favorites (optional - keep if you want) -->
-  <section class="card">
-    <div class="section-head">
-      <h2>Favorites</h2>
-    </div>
-    <div id="favoritesGrid" class="outfits-grid"></div>
-    <p id="favoritesMsg" class="muted"></p>
-  </section>
-</main>
+    <!-- FAVORITES -->
+    <section class="card">
+      <div class="section-head">
+        <h2>Favorites</h2>
+      </div>
+      <div id="favoritesGrid" class="outfits-grid"></div>
+      <p id="favoritesMsg" class="muted"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
