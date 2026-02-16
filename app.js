@@ -1,8 +1,8 @@
 const MAX_ITEMS = 10;
 
-const PROFILE_KEY = "outfitmatcher_profile_v5";
-function itemsKey(profileId) { return `outfitmatcher_items_${profileId}_v5`; }
-function favsKey(profileId)  { return `outfitmatcher_favs_${profileId}_v5`; }
+const PROFILE_KEY = "buildmyoutfit_profile_v1";
+function itemsKey(profileId) { return `buildmyoutfit_items_${profileId}_v1`; }
+function favsKey(profileId)  { return `buildmyoutfit_favs_${profileId}_v1`; }
 
 /* ---------- Color Logic (EDIT THIS) ---------- */
 const NEUTRALS = ["black","white","gray","navy","beige","cream","brown","denim_blue"];
@@ -73,7 +73,6 @@ const dressLengthSelect = document.getElementById("dressLengthSelect");
 const colorSelect = document.getElementById("colorSelect");
 
 const saveItemBtn = document.getElementById("saveItemBtn");
-const saveAndUseBtn = document.getElementById("saveAndUseBtn");
 const clearClosetBtn = document.getElementById("clearClosetBtn");
 const uploadMsg = document.getElementById("uploadMsg");
 
@@ -136,46 +135,8 @@ function updateConditionalFields() {
   if (!showBottomType) bottomTypeSelect.value = "";
   if (!showSleeve) sleeveSelect.value = "";
   if (!showDressLength) dressLengthSelect.value = "";
-
-  updateActionButtons();
 }
 categorySelect.addEventListener("change", updateConditionalFields);
-
-/* ---------- Enable/disable action buttons ---------- */
-function formIsComplete() {
-  const cat = categorySelect.value;
-  const color = colorSelect.value;
-
-  if (!pendingImageDataUrl) return false;
-  if (!cat) return false;
-  if (!color) return false;
-
-  if (cat === "top") {
-    if (!topTypeSelect.value) return false;
-    if (!sleeveSelect.value) return false;
-  }
-
-  if (cat === "bottom") {
-    if (!bottomTypeSelect.value) return false;
-  }
-
-  if (cat === "dress") {
-    if (!sleeveSelect.value) return false;
-    if (!dressLengthSelect.value) return false;
-  }
-
-  return true;
-}
-
-function updateActionButtons() {
-  const ok = formIsComplete();
-  saveItemBtn.disabled = !ok;
-  saveAndUseBtn.disabled = !ok;
-}
-
-[topTypeSelect, bottomTypeSelect, sleeveSelect, dressLengthSelect, colorSelect].forEach(el => {
-  el.addEventListener("change", updateActionButtons);
-});
 
 /* ---------- Upload handling ---------- */
 fileInput.addEventListener("change", () => {
@@ -200,7 +161,6 @@ fileInput.addEventListener("change", () => {
     imgPreview.src = pendingImageDataUrl;
     imgPreview.style.display = "block";
     previewPlaceholder.style.display = "none";
-    updateActionButtons();
   };
   reader.readAsDataURL(f);
 });
@@ -213,22 +173,16 @@ function normalizeItemFromForm() {
   const bottomType = bottomTypeSelect.value;
   const dressLength = dressLengthSelect.value;
 
-  if (!pendingImageDataUrl) return { error: "Choose a photo." };
+  if (!pendingImageDataUrl) return { error: "Upload a photo." };
   if (!category) return { error: "Select a category." };
   if (!color) return { error: "Select a color." };
 
   if ((category === "top" || category === "dress") && !sleeveLength) {
     return { error: "Select sleeve length." };
   }
-  if (category === "top" && !topType) {
-    return { error: "Select top type." };
-  }
-  if (category === "bottom" && !bottomType) {
-    return { error: "Select bottom type." };
-  }
-  if (category === "dress" && !dressLength) {
-    return { error: "Select dress length." };
-  }
+  if (category === "top" && !topType) return { error: "Select top type." };
+  if (category === "bottom" && !bottomType) return { error: "Select bottom type." };
+  if (category === "dress" && !dressLength) return { error: "Select dress length." };
 
   const id =
     (window.crypto && crypto.randomUUID && crypto.randomUUID()) ||
@@ -263,42 +217,25 @@ function resetUploader() {
   colorSelect.value = "";
 
   updateConditionalFields();
-  updateActionButtons();
-}
-
-function saveNewItem() {
-  if (ITEMS.length >= MAX_ITEMS) {
-    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
-    return null;
-  }
-
-  const { item, error } = normalizeItemFromForm();
-  if (error) {
-    setUploadMsg(error);
-    return null;
-  }
-
-  ITEMS.push(item);
-  saveItems(profile.id, ITEMS);
-  renderCloset();
-  closetCountEl.textContent = `${ITEMS.length}/${MAX_ITEMS}`;
-  setUploadMsg(`Saved (${ITEMS.length}/${MAX_ITEMS}).`);
-  return item;
 }
 
 saveItemBtn.addEventListener("click", () => {
   setUploadMsg("");
-  const item = saveNewItem();
-  if (!item) return;
-  resetUploader();
-});
 
-saveAndUseBtn.addEventListener("click", () => {
-  setUploadMsg("");
-  const item = saveNewItem();
-  if (!item) return;
+  if (ITEMS.length >= MAX_ITEMS) {
+    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
+    return;
+  }
+
+  const { item, error } = normalizeItemFromForm();
+  if (error) { setUploadMsg(error); return; }
+
+  ITEMS.push(item);
+  saveItems(profile.id, ITEMS);
+
+  renderCloset();
   resetUploader();
-  generateAndRenderOutfits(item);
+  setUploadMsg(`Saved (${ITEMS.length}/${MAX_ITEMS}).`);
 });
 
 clearClosetBtn.addEventListener("click", () => {
@@ -315,7 +252,6 @@ clearClosetBtn.addEventListener("click", () => {
 });
 
 /* ---------- Type helpers ---------- */
-function isTop(item) { return item.category === "top"; }
 function isDress(item) { return item.category === "dress"; }
 function isBottom(item) { return item.category === "bottom"; }
 function isLayer(item) {
@@ -325,7 +261,7 @@ function isShirt(item) { return item.category === "top" && item.topType === "shi
 
 function canWearLayerWithTop(top, layer) {
   if (!layer || !isLayer(layer)) return true;
-  if (!top || !isTop(top)) return false;
+  if (!top || top.category !== "top") return false;
   return top.sleeveLength === "short";
 }
 function canWearLayerWithDress(dress, layer) {
@@ -388,7 +324,6 @@ function renderCloset() {
 
       renderCloset();
       renderFavorites();
-      setUploadMsg(`Deleted (${ITEMS.length}/${MAX_ITEMS}).`);
     });
 
     btnRow.appendChild(useBtn);
@@ -633,7 +568,6 @@ function init() {
   updateConditionalFields();
   renderCloset();
   renderFavorites();
-  updateActionButtons();
   setUploadMsg(`Closet: ${ITEMS.length}/${MAX_ITEMS}`);
 }
 init();
