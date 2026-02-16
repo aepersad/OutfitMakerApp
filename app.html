@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Outfit Matcher • App</title>
+  <title>Outfit Matcher</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="header">
     <h1>Outfit Matcher</h1>
-    <p class="sub">
-      Upload your closet (max 10), click an item, generate outfits by type + color, and favorite outfits you like.
-    </p>
     <div class="topbar">
       <div id="profileLabel" class="chip"></div>
-      <button id="switchProfileBtn" class="small-btn" type="button">Switch Profile</button>
+      <button id="logoutBtn" class="small-btn" type="button">Log out</button>
     </div>
   </header>
 
@@ -22,7 +19,7 @@
     <!-- Uploader -->
     <section class="card">
       <h2>Add Clothing Item</h2>
-      <p class="muted">Upload 1 photo, choose details, then save. Closet max: <span id="maxCount">10</span>.</p>
+      <p class="muted">Closet max: <span id="maxCount">10</span></p>
 
       <div class="uploader">
         <div class="upload-left">
@@ -134,18 +131,15 @@
           <span id="closetCount">0/10</span>
         </div>
       </div>
-
       <div id="closetGrid" class="closet-grid"></div>
-      <p class="muted">Tip: click <strong>Use</strong> to generate outfits. Click <strong>Delete</strong> to remove an item.</p>
     </section>
 
     <!-- Outfits -->
     <section class="card">
       <div class="outfits-head">
         <h2>Generated Outfits</h2>
-        <div class="muted" id="selectedLabel">Select an item to generate outfits.</div>
+        <div class="muted" id="selectedLabel">Select an item.</div>
       </div>
-
       <div id="outfitsGrid" class="outfits-grid"></div>
       <p id="outfitMsg" class="muted"></p>
     </section>
@@ -154,16 +148,11 @@
     <section class="card">
       <div class="favorites-head">
         <h2>Favorites</h2>
-        <p class="muted">Saved per profile in your browser.</p>
       </div>
       <div id="favoritesGrid" class="outfits-grid"></div>
       <p id="favoritesMsg" class="muted"></p>
     </section>
   </main>
-
-  <footer class="footer">
-    <p class="muted">Built with vanilla HTML/CSS/JS • Data stored locally in your browser.</p>
-  </footer>
 
   <script src="app.js"></script>
 </body>
