@@ -1,7 +1,4 @@
-// Demo/local "login" for Outfit Matcher (no password).
-// Stores profile in localStorage and navigates to app.html.
-
-const PROFILE_KEY = "outfitmatcher_profile_v4";
+const PROFILE_KEY = "outfitmatcher_profile_v5";
 
 const displayNameInput = document.getElementById("displayNameInput");
 const continueBtn = document.getElementById("continueBtn");
@@ -27,7 +24,7 @@ function goToApp() {
 continueBtn.addEventListener("click", () => {
   const name = (displayNameInput.value || "").trim();
   if (!name) {
-    authMsg.textContent = "Enter a name or use Continue as Guest.";
+    authMsg.textContent = "Enter a name or continue as guest.";
     return;
   }
   saveProfile({ id: makeProfileId(name), name });
@@ -39,7 +36,7 @@ continueGuestBtn.addEventListener("click", () => {
   goToApp();
 });
 
-// Optional: if already "logged in", go straight to app
+// If already set, go straight to app
 try {
   const existing = localStorage.getItem(PROFILE_KEY);
   if (existing) goToApp();
