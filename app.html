@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outfit Matcher • App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Outfit Matcher</h1>
+    <p class="sub">
+      Upload your closet (max 10), click an item, generate outfits by type + color, and favorite outfits you like.
+    </p>
+    <div class="topbar">
+      <div id="profileLabel" class="chip"></div>
+      <button id="switchProfileBtn" class="small-btn" type="button">Switch Profile</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Uploader -->
+    <section class="card">
+      <h2>Add Clothing Item</h2>
+      <p class="muted">Upload 1 photo, choose details, then save. Closet max: <span id="maxCount">10</span>.</p>
+
+      <div class="uploader">
+        <div class="upload-left">
+          <label class="file-btn">
+            Choose Photo
+            <input id="fileInput" type="file" accept="image/*" />
+          </label>
+
+          <div class="preview">
+            <img id="imgPreview" alt="preview" />
+            <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
+          </div>
+        </div>
+
+        <div class="upload-right">
+          <div class="grid">
+            <label>
+              Category
+              <select id="categorySelect">
+                <option value="">Select…</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="dress">Dress</option>
+              </select>
+            </label>
+
+            <label id="topTypeLabel" class="hidden">
+              Top type
+              <select id="topTypeSelect">
+                <option value="">Select…</option>
+                <option value="shirt">Shirt</option>
+                <option value="cardigan">Cardigan</option>
+                <option value="sweater">Sweater</option>
+                <option value="jacket">Jacket</option>
+              </select>
+            </label>
+
+            <label id="bottomTypeLabel" class="hidden">
+              Bottom type
+              <select id="bottomTypeSelect">
+                <option value="">Select…</option>
+                <option value="jeans">Jeans</option>
+                <option value="leggings">Leggings</option>
+                <option value="sweatpants">Sweatpants</option>
+                <option value="trousers">Trousers</option>
+                <option value="shorts">Shorts</option>
+                <option value="skirt">Skirt</option>
+              </select>
+            </label>
+
+            <label id="sleeveLabel" class="hidden">
+              Sleeve length
+              <select id="sleeveSelect">
+                <option value="">Select…</option>
+                <option value="sleeveless">Sleeveless</option>
+                <option value="short">Short</option>
+                <option value="long">Long</option>
+              </select>
+            </label>
+
+            <label id="dressLengthLabel" class="hidden">
+              Dress length
+              <select id="dressLengthSelect">
+                <option value="">Select…</option>
+                <option value="mini">Mini</option>
+                <option value="midi">Midi</option>
+                <option value="maxi">Maxi</option>
+              </select>
+            </label>
+
+            <label>
+              Color
+              <select id="colorSelect">
+                <option value="">Select…</option>
+                <option value="black">Black</option>
+                <option value="white">White</option>
+                <option value="gray">Gray</option>
+                <option value="navy">Navy</option>
+                <option value="beige">Beige</option>
+                <option value="cream">Cream</option>
+                <option value="brown">Brown</option>
+                <option value="denim_blue">Denim/Blue</option>
+
+                <option value="red">Red</option>
+                <option value="pink">Pink</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="yellow">Yellow</option>
+                <option value="orange">Orange</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="saveItemBtn" type="button" class="primary">Save Item</button>
+            <button id="clearClosetBtn" type="button" class="danger">Clear Closet</button>
+          </div>
+
+          <p id="uploadMsg" class="muted"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closet -->
+    <section class="card">
+      <div class="closet-head">
+        <h2>Your Closet</h2>
+        <div class="closet-meta">
+          <span id="closetCount">0/10</span>
+        </div>
+      </div>
+
+      <div id="closetGrid" class="closet-grid"></div>
+      <p class="muted">Tip: click <strong>Use</strong> to generate outfits. Click <strong>Delete</strong> to remove an item.</p>
+    </section>
+
+    <!-- Outfits -->
+    <section class="card">
+      <div class="outfits-head">
+        <h2>Generated Outfits</h2>
+        <div class="muted" id="selectedLabel">Select an item to generate outfits.</div>
+      </div>
+
+      <div id="outfitsGrid" class="outfits-grid"></div>
+      <p id="outfitMsg" class="muted"></p>
+    </section>
+
+    <!-- Favorites -->
+    <section class="card">
+      <div class="favorites-head">
+        <h2>Favorites</h2>
+        <p class="muted">Saved per profile in your browser.</p>
+      </div>
+      <div id="favoritesGrid" class="outfits-grid"></div>
+      <p id="favoritesMsg" class="muted"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="muted">Built with vanilla HTML/CSS/JS • Data stored locally in your browser.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
