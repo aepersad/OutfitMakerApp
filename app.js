@@ -6,7 +6,11 @@ function itemsKey(profileId) {
 }
 
 function safeParse(raw, fallback) {
-  try { return JSON.parse(raw); } catch { return fallback; }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
 }
 
 function loadProfile() {
@@ -14,14 +18,14 @@ function loadProfile() {
 }
 
 const profile = loadProfile();
-if (!profile) location.href = "index.html";
+if (!profile) {
+  location.href = "index.html";
+}
 
 /* ---------- DOM ---------- */
 const profileLabel = document.getElementById("profileLabel");
 const logoutBtn = document.getElementById("logoutBtn");
-
 const closetCountEl = document.getElementById("closetCount");
-const maxCountEl = document.getElementById("maxCount");
 
 const fileInput = document.getElementById("fileInput");
 const fileNameEl = document.getElementById("fileName");
@@ -29,39 +33,33 @@ const imgPreview = document.getElementById("imgPreview");
 const previewPlaceholder = document.getElementById("previewPlaceholder");
 
 const categorySelect = document.getElementById("categorySelect");
-
 const topTypeGroup = document.getElementById("topTypeGroup");
 const topTypeSelect = document.getElementById("topTypeSelect");
-
 const bottomTypeGroup = document.getElementById("bottomTypeGroup");
 const bottomTypeSelect = document.getElementById("bottomTypeSelect");
-
 const sleeveGroup = document.getElementById("sleeveGroup");
 const sleeveSelect = document.getElementById("sleeveSelect");
-
 const dressLengthGroup = document.getElementById("dressLengthGroup");
 const dressLengthSelect = document.getElementById("dressLengthSelect");
-
 const colorSelect = document.getElementById("colorSelect");
 
 const saveItemBtn = document.getElementById("saveItemBtn");
 const clearClosetBtn = document.getElementById("clearClosetBtn");
+
 const uploadMsg = document.getElementById("uploadMsg");
-
 const closetGrid = document.getElementById("closetGrid");
-
 const outfitsGrid = document.getElementById("outfitsGrid");
 const selectedLabel = document.getElementById("selectedLabel");
 const outfitMsg = document.getElementById("outfitMsg");
 
-/* ---------- UI header ---------- */
+/* ---------- Header ---------- */
 profileLabel.textContent = `Profile: ${profile.name || "Guest"}`;
+logoutBtn.classList.add("logout-btn");
+
 logoutBtn.addEventListener("click", () => {
   localStorage.removeItem(PROFILE_KEY);
   location.href = "index.html";
 });
-
-maxCountEl.textContent = String(MAX_ITEMS);
 
 /* ---------- State ---------- */
 let ITEMS = loadItems();
@@ -79,46 +77,57 @@ function saveItems() {
 }
 
 /* ---------- Helpers ---------- */
-function setUploadMsg(t) { uploadMsg.textContent = t || ""; }
-function setOutfitMsg(t) { outfitMsg.textContent = t || ""; }
-
-function titleCase(s) {
-  return (s || "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+function setUploadMsg(text) {
+  uploadMsg.textContent = text || "";
 }
 
-function formatItemLabel(it) {
+function setOutfitMsg(text) {
+  outfitMsg.textContent = text || "";
+}
+
+function titleCase(value) {
+  return (value || "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatItemLabel(item) {
   const parts = [];
-  if (it.category === "top") parts.push(`Top (${titleCase(it.topType)})`);
-  else if (it.category === "bottom") parts.push(`Bottom (${titleCase(it.bottomType)})`);
-  else parts.push(`Dress (${titleCase(it.dressLength)})`);
-  if (it.sleeveLength) parts.push(titleCase(it.sleeveLength));
-  if (it.color) parts.push(titleCase(it.color));
+
+  if (item.category === "top") {
+    parts.push(`Top (${titleCase(item.topType)})`);
+  } else if (item.category === "bottom") {
+    parts.push(`Bottom (${titleCase(item.bottomType)})`);
+  } else {
+    parts.push(`Dress (${titleCase(item.dressLength)})`);
+  }
+
+  if (item.sleeveLength) parts.push(titleCase(item.sleeveLength));
+  if (item.color) parts.push(titleCase(item.color));
+
   return parts.join(" • ");
 }
 
 function uuid() {
-  return (crypto?.randomUUID?.()) || `id_${Date.now()}_${Math.floor(Math.random()*1e6)}`;
+  if (crypto?.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return `id_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
 }
 
-/* ---------- Conditional fields (exactly as requested) ---------- */
+/* ---------- Conditional fields ---------- */
 function updateConditionalFields() {
-  const c = categorySelect.value;
+  const category = categorySelect.value;
+  const isTop = category === "top";
+  const isBottom = category === "bottom";
+  const isDress = category === "dress";
 
-  const isTop = c === "top";
-  const isBottom = c === "bottom";
-  const isDress = c === "dress";
-
-  // Show only matching groups
   topTypeGroup.classList.toggle("hidden", !isTop);
   bottomTypeGroup.classList.toggle("hidden", !isBottom);
-
-  // Sleeve length for Tops + Dresses
   sleeveGroup.classList.toggle("hidden", !(isTop || isDress));
-
-  // Dress length only for Dresses
   dressLengthGroup.classList.toggle("hidden", !isDress);
 
-  // Clear anything not applicable
   if (!isTop) topTypeSelect.value = "";
   if (!isBottom) bottomTypeSelect.value = "";
   if (!(isTop || isDress)) sleeveSelect.value = "";
@@ -127,24 +136,36 @@ function updateConditionalFields() {
 
 categorySelect.addEventListener("change", updateConditionalFields);
 
-/* ---------- Upload preview ---------- */
+/* ---------- Image preview ---------- */
+function resetPreview() {
+  pendingImageDataUrl = "";
+  imgPreview.src = "";
+  imgPreview.style.display = "none";
+  previewPlaceholder.style.display = "grid";
+  fileInput.value = "";
+  fileNameEl.textContent = "No file chosen";
+}
+
 fileInput.addEventListener("change", () => {
   setUploadMsg("");
-  const f = fileInput.files && fileInput.files[0];
-  fileNameEl.textContent = f ? f.name : "No file chosen";
-  if (!f) return;
 
-  if (!f.type.startsWith("image/")) {
-    setUploadMsg("Upload an image file.");
-    fileInput.value = "";
-    fileNameEl.textContent = "No file chosen";
+  const file = fileInput.files && fileInput.files[0];
+  fileNameEl.textContent = file ? file.name : "No file chosen";
+
+  if (!file) {
+    resetPreview();
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    setUploadMsg("Please upload an image file.");
+    resetPreview();
     return;
   }
 
   if (ITEMS.length >= MAX_ITEMS) {
-    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
-    fileInput.value = "";
-    fileNameEl.textContent = "No file chosen";
+    setUploadMsg(`Closet is full (${MAX_ITEMS} items max).`);
+    resetPreview();
     return;
   }
 
@@ -155,38 +176,54 @@ fileInput.addEventListener("change", () => {
     imgPreview.style.display = "block";
     previewPlaceholder.style.display = "none";
   };
-  reader.readAsDataURL(f);
+  reader.readAsDataURL(file);
 });
 
-/* ---------- Save item ---------- */
+/* ---------- Form handling ---------- */
 function normalizeItemFromForm() {
   const category = categorySelect.value;
   const color = colorSelect.value;
-
   const topType = topTypeSelect.value;
   const bottomType = bottomTypeSelect.value;
   const sleeveLength = sleeveSelect.value;
   const dressLength = dressLengthSelect.value;
 
-  if (!pendingImageDataUrl) return { error: "Choose a file." };
-  if (!category) return { error: "Select a category." };
-  if (!color) return { error: "Select a color." };
+  if (!pendingImageDataUrl) {
+    return { error: "Choose an image first." };
+  }
 
-  // Top -> needs topType + sleeve
+  if (!category) {
+    return { error: "Select a category." };
+  }
+
+  if (!color) {
+    return { error: "Select a color." };
+  }
+
   if (category === "top") {
-    if (!topType) return { error: "Select a top type." };
-    if (!sleeveLength) return { error: "Select sleeve length." };
+    if (!topType) {
+      return { error: "Select a top type." };
+    }
+
+    if (!sleeveLength) {
+      return { error: "Select a sleeve length." };
+    }
   }
 
-  // Bottom -> needs bottomType only
   if (category === "bottom") {
-    if (!bottomType) return { error: "Select a bottom type." };
+    if (!bottomType) {
+      return { error: "Select a bottom type." };
+    }
   }
 
-  // Dress -> needs sleeve + dress length
   if (category === "dress") {
-    if (!sleeveLength) return { error: "Select sleeve length." };
-    if (!dressLength) return { error: "Select dress length." };
+    if (!sleeveLength) {
+      return { error: "Select a sleeve length." };
+    }
+
+    if (!dressLength) {
+      return { error: "Select a dress length." };
+    }
   }
 
   return {
@@ -196,29 +233,21 @@ function normalizeItemFromForm() {
       category,
       topType: category === "top" ? topType : "",
       bottomType: category === "bottom" ? bottomType : "",
-      sleeveLength: (category === "top" || category === "dress") ? sleeveLength : "",
+      sleeveLength: category === "top" || category === "dress" ? sleeveLength : "",
       dressLength: category === "dress" ? dressLength : "",
-      color
-    }
+      color,
+    },
   };
 }
 
-function resetUploader() {
-  pendingImageDataUrl = "";
-  imgPreview.src = "";
-  imgPreview.style.display = "none";
-  previewPlaceholder.style.display = "grid";
-
-  fileInput.value = "";
-  fileNameEl.textContent = "No file chosen";
-
+function resetForm() {
+  resetPreview();
   categorySelect.value = "";
   topTypeSelect.value = "";
   bottomTypeSelect.value = "";
   sleeveSelect.value = "";
   dressLengthSelect.value = "";
   colorSelect.value = "";
-
   updateConditionalFields();
 }
 
@@ -226,18 +255,23 @@ saveItemBtn.addEventListener("click", () => {
   setUploadMsg("");
 
   if (ITEMS.length >= MAX_ITEMS) {
-    setUploadMsg(`Closet is full (${MAX_ITEMS}).`);
+    setUploadMsg(`Closet is full (${MAX_ITEMS} items max).`);
     return;
   }
 
   const { item, error } = normalizeItemFromForm();
-  if (error) { setUploadMsg(error); return; }
+
+  if (error) {
+    setUploadMsg(error);
+    return;
+  }
 
   ITEMS.push(item);
   saveItems();
   renderCloset();
-  resetUploader();
   updateCounts();
+  resetForm();
+  setUploadMsg("Item saved to your closet.");
 });
 
 clearClosetBtn.addEventListener("click", () => {
@@ -246,61 +280,92 @@ clearClosetBtn.addEventListener("click", () => {
   renderCloset();
   clearOutfits();
   updateCounts();
-  setUploadMsg("");
+  resetForm();
+  setUploadMsg("Closet cleared.");
 });
 
 /* ---------- Matching rules ---------- */
-// Layer items: cardigan / sweater / jacket
 function isLayer(item) {
-  return item.category === "top" &&
-    (item.topType === "cardigan" || item.topType === "sweater" || item.topType === "jacket");
+  return (
+    item.category === "top" &&
+    (item.topType === "cardigan" ||
+      item.topType === "sweater" ||
+      item.topType === "jacket")
+  );
 }
+
 function isShirt(item) {
   return item.category === "top" && item.topType === "shirt";
 }
+
 function isBottom(item) {
   return item.category === "bottom";
 }
+
 function isDress(item) {
   return item.category === "dress";
 }
 
-// Layer only with short sleeve top OR sleeveless/short sleeve dress
 function layerAllowedWithTop(top) {
   return top && top.category === "top" && top.sleeveLength === "short";
 }
+
 function layerAllowedWithDress(dress) {
-  return dress && dress.category === "dress" &&
-    (dress.sleeveLength === "sleeveless" || dress.sleeveLength === "short");
+  return (
+    dress &&
+    dress.category === "dress" &&
+    (dress.sleeveLength === "sleeveless" || dress.sleeveLength === "short")
+  );
 }
 
-// Color pairing hook (neutral-safe baseline)
-const NEUTRALS = ["black","white","gray","blue","beige","cream","brown","denim_blue"];
+const NEUTRALS = [
+  "black",
+  "white",
+  "gray",
+  "blue",
+  "beige",
+  "cream",
+  "brown",
+  "denim_blue",
+];
+
 function colorsCompatible(a, b) {
   if (!a || !b) return true;
   if (a === b) return true;
   if (NEUTRALS.includes(a) || NEUTRALS.includes(b)) return true;
-  return true; // you can tighten later
+
+  return true;
 }
+
 function outfitColorsOK(items) {
-  for (let i=0;i<items.length;i++){
-    for (let j=i+1;j<items.length;j++){
-      if (!colorsCompatible(items[i].color, items[j].color)) return false;
+  for (let i = 0; i < items.length; i += 1) {
+    for (let j = i + 1; j < items.length; j += 1) {
+      if (!colorsCompatible(items[i].color, items[j].color)) {
+        return false;
+      }
     }
   }
   return true;
 }
 
-function uniqOutfits(outfits) {
+function uniqOutfits(list) {
   const seen = new Set();
-  const out = [];
-  for (const items of outfits) {
-    const key = items.map(x => x.id).slice().sort().join("|");
+  const unique = [];
+
+  for (const items of list) {
+    const key = items
+      .map((item) => item.id)
+      .slice()
+      .sort()
+      .join("|");
+
     if (seen.has(key)) continue;
+
     seen.add(key);
-    out.push(items);
+    unique.push(items);
   }
-  return out;
+
+  return unique;
 }
 
 function generateOutfits(selected) {
@@ -312,52 +377,67 @@ function generateOutfits(selected) {
   const outfits = [];
 
   function add(items) {
-    if (!items.some(x => x.id === selected.id)) return;
+    if (!items.some((item) => item.id === selected.id)) return;
     if (!outfitColorsOK(items)) return;
     outfits.push(items);
   }
 
-  // Layer selected
   if (isLayer(selected)) {
-    shirts.forEach(top => {
+    shirts.forEach((top) => {
       if (!layerAllowedWithTop(top)) return;
-      bottoms.forEach(bottom => add([selected, top, bottom]));
+
+      bottoms.forEach((bottom) => {
+        add([selected, top, bottom]);
+      });
     });
-    dresses.forEach(dress => {
+
+    dresses.forEach((dress) => {
       if (!layerAllowedWithDress(dress)) return;
       add([selected, dress]);
     });
+
     return uniqOutfits(outfits);
   }
 
-  // Shirt selected
   if (isShirt(selected)) {
-    bottoms.forEach(bottom => add([selected, bottom]));
+    bottoms.forEach((bottom) => {
+      add([selected, bottom]);
+    });
+
     if (layerAllowedWithTop(selected)) {
-      layers.forEach(layer => {
-        bottoms.forEach(bottom => add([layer, selected, bottom]));
+      layers.forEach((layer) => {
+        bottoms.forEach((bottom) => {
+          add([layer, selected, bottom]);
+        });
       });
     }
+
     return uniqOutfits(outfits);
   }
 
-  // Dress selected
   if (isDress(selected)) {
     add([selected]);
+
     if (layerAllowedWithDress(selected)) {
-      layers.forEach(layer => add([layer, selected]));
+      layers.forEach((layer) => {
+        add([layer, selected]);
+      });
     }
+
     return uniqOutfits(outfits);
   }
 
-  // Bottom selected
   if (isBottom(selected)) {
-    shirts.forEach(top => {
+    shirts.forEach((top) => {
       add([top, selected]);
+
       if (layerAllowedWithTop(top)) {
-        layers.forEach(layer => add([layer, top, selected]));
+        layers.forEach((layer) => {
+          add([layer, top, selected]);
+        });
       }
     });
+
     return uniqOutfits(outfits);
   }
 
@@ -375,40 +455,51 @@ function clearOutfits() {
   setOutfitMsg("");
 }
 
+function createButton(label, className, onClick) {
+  const button = document.createElement("button");
+  button.className = className;
+  button.textContent = label;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
 function renderCloset() {
   closetGrid.innerHTML = "";
 
-  ITEMS.forEach((it) => {
+  if (!ITEMS.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "Your closet is empty. Add a few pieces to get started.";
+    closetGrid.appendChild(empty);
+    updateCounts();
+    return;
+  }
+
+  ITEMS.forEach((item) => {
     const card = document.createElement("div");
     card.className = "item-card";
 
     const img = document.createElement("img");
-    img.src = it.imageDataUrl;
-    img.alt = formatItemLabel(it);
+    img.src = item.imageDataUrl;
+    img.alt = formatItemLabel(item);
 
     const body = document.createElement("div");
     body.className = "item-body";
 
     const meta = document.createElement("div");
     meta.className = "item-meta";
-    meta.textContent = formatItemLabel(it);
+    meta.textContent = formatItemLabel(item);
 
     const actions = document.createElement("div");
     actions.className = "item-actions";
 
-    const useBtn = document.createElement("button");
-    useBtn.className = "primary";
-    useBtn.textContent = "Use";
-    useBtn.addEventListener("click", () => {
-      const outfits = generateOutfits(it);
-      renderOutfits(it, outfits);
+    const useBtn = createButton("Use", "primary", () => {
+      const outfits = generateOutfits(item);
+      renderOutfits(item, outfits);
     });
 
-    const delBtn = document.createElement("button");
-    delBtn.className = "danger";
-    delBtn.textContent = "Delete";
-    delBtn.addEventListener("click", () => {
-      ITEMS = ITEMS.filter(x => x.id !== it.id);
+    const delBtn = createButton("Delete", "danger", () => {
+      ITEMS = ITEMS.filter((current) => current.id !== item.id);
       saveItems();
       renderCloset();
       clearOutfits();
@@ -435,11 +526,11 @@ function renderOutfits(selected, outfits) {
   selectedLabel.textContent = `Selected: ${formatItemLabel(selected)}`;
 
   if (!outfits.length) {
-    setOutfitMsg("No outfits found.");
+    setOutfitMsg("No outfits found for this item yet.");
     return;
   }
 
-  setOutfitMsg(`Found ${outfits.length}.`);
+  setOutfitMsg(`Found ${outfits.length} outfit${outfits.length === 1 ? "" : "s"}.`);
 
   outfits.forEach((items) => {
     const card = document.createElement("div");
@@ -447,13 +538,14 @@ function renderOutfits(selected, outfits) {
 
     const grid = document.createElement("div");
     grid.className = "outfit-items";
+
     if (items.length === 1) grid.classList.add("one");
     if (items.length === 3) grid.classList.add("three");
 
-    items.forEach((it) => {
+    items.forEach((item) => {
       const img = document.createElement("img");
-      img.src = it.imageDataUrl;
-      img.alt = formatItemLabel(it);
+      img.src = item.imageDataUrl;
+      img.alt = formatItemLabel(item);
       grid.appendChild(img);
     });
 
@@ -463,7 +555,6 @@ function renderOutfits(selected, outfits) {
 
     card.appendChild(grid);
     card.appendChild(meta);
-
     outfitsGrid.appendChild(card);
   });
 }
@@ -472,3 +563,4 @@ function renderOutfits(selected, outfits) {
 updateConditionalFields();
 renderCloset();
 updateCounts();
+clearOutfits();
