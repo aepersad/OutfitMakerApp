@@ -1,50 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Build My Outfit</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
-<body class="app-bg">
-  <header class="header">
-    <h1>Build My Outfit</h1>
-
+<body>
+  <main class="page-shell">
     <div class="topbar">
-      <div id="profileLabel" class="chip"></div>
-      <button id="logoutBtn" class="small-btn" type="button">Log out</button>
-    </div>
-  </header>
-
-  <main class="container">
-
-    <!-- ADD ITEM -->
-    <section class="card">
-      <div class="section-head">
-        <h2>Add Item</h2>
-        <div class="meta"><span id="closetCount">0/10</span></div>
+      <div>
+        <h1>Build My Outfit</h1>
+        <p id="profileLabel" class="hero-subtitle" style="text-align:left; margin-bottom:0;"></p>
       </div>
+      <button id="logoutBtn" class="logout-btn">Log out</button>
+    </div>
 
-      <div class="upload-rect-body">
-        <!-- LEFT -->
-        <div class="upload-left">
-          <label class="choose-file-btn">
-            Choose File
-            <input id="fileInput" type="file" accept="image/*" />
-          </label>
-
-          <div id="fileName" class="file-name">No file chosen</div>
-
-          <div class="preview">
-            <img id="imgPreview" alt="preview" />
-            <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
+    <div class="grid-layout">
+      <div class="left-column">
+        <section class="section-card">
+          <h2>Add Item</h2>
+          <div class="counter">
+            <span id="closetCount">0/10</span>
           </div>
-        </div>
 
-        <!-- RIGHT -->
-        <div class="upload-right">
-          <label>Category</label>
+          <div class="upload-box">
+            <label for="fileInput">Upload Image</label>
+            <input id="fileInput" type="file" accept="image/*" />
+            <p id="fileName" class="muted">No file chosen</p>
+
+            <div class="preview-box">
+              <img id="imgPreview" style="display:none;" alt="Preview" />
+              <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <label for="categorySelect">Category</label>
           <select id="categorySelect">
             <option value="">Select</option>
             <option value="top">Top</option>
@@ -52,9 +45,8 @@
             <option value="dress">Dress</option>
           </select>
 
-          <!-- TOP subcategory -->
           <div id="topTypeGroup" class="hidden">
-            <label>Top type</label>
+            <label for="topTypeSelect">Top type</label>
             <select id="topTypeSelect">
               <option value="">Select</option>
               <option value="shirt">Shirt</option>
@@ -64,9 +56,8 @@
             </select>
           </div>
 
-          <!-- BOTTOM subcategory -->
           <div id="bottomTypeGroup" class="hidden">
-            <label>Bottom type</label>
+            <label for="bottomTypeSelect">Bottom type</label>
             <select id="bottomTypeSelect">
               <option value="">Select</option>
               <option value="jeans">Jeans</option>
@@ -78,9 +69,8 @@
             </select>
           </div>
 
-          <!-- Sleeve length (TOP + DRESS only) -->
           <div id="sleeveGroup" class="hidden">
-            <label>Sleeve length</label>
+            <label for="sleeveSelect">Sleeve length</label>
             <select id="sleeveSelect">
               <option value="">Select</option>
               <option value="sleeveless">Sleeveless</option>
@@ -89,9 +79,8 @@
             </select>
           </div>
 
-          <!-- Dress length (DRESS only) -->
           <div id="dressLengthGroup" class="hidden">
-            <label>Dress length</label>
+            <label for="dressLengthSelect">Dress length</label>
             <select id="dressLengthSelect">
               <option value="">Select</option>
               <option value="mini">Mini</option>
@@ -100,7 +89,7 @@
             </select>
           </div>
 
-          <label>Color</label>
+          <label for="colorSelect">Color</label>
           <select id="colorSelect">
             <option value="">Select</option>
             <option value="black">Black</option>
@@ -119,36 +108,29 @@
             <option value="orange">Orange</option>
           </select>
 
-          <div class="actions">
-            <button id="saveItemBtn" class="primary" type="button">Save Item</button>
-            <button id="clearClosetBtn" class="danger" type="button">Clear Closet</button>
+          <div class="button-row">
+            <button id="saveItemBtn" class="primary">Save Item</button>
+            <button id="clearClosetBtn" class="secondary">Clear Closet</button>
           </div>
 
-          <p id="uploadMsg" class="muted"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- MY CLOSET -->
-    <section class="card">
-      <div class="section-head">
-        <h2>My Closet</h2>
-        <div class="meta"><span id="maxCount">10</span></div>
-      </div>
-      <div id="closetGrid" class="closet-grid"></div>
-    </section>
-
-    <!-- OUTFIT MATCHES -->
-    <section class="card">
-      <div class="section-head">
-        <h2>Outfit Matches</h2>
-        <div class="meta" id="selectedLabel">Select an item.</div>
+          <p id="uploadMsg" class="message"></p>
+        </section>
       </div>
 
-      <div id="outfitsGrid" class="outfits-grid"></div>
-      <p id="outfitMsg" class="muted"></p>
-    </section>
+      <div class="right-column">
+        <section class="section-card">
+          <h2>My Closet</h2>
+          <div id="closetGrid"></div>
+        </section>
 
+        <section class="section-card">
+          <h2>Outfit Matches</h2>
+          <p id="selectedLabel" class="muted">Select an item.</p>
+          <p id="outfitMsg" class="message"></p>
+          <div id="outfitsGrid"></div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <script src="app.js"></script>
