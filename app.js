@@ -131,7 +131,9 @@ function getCurrentWeekDays() {
 }
 
 function saveOutfitToDay(items, dateKey) {
+  const existing = CALENDAR_DATA[dateKey] || {};
   CALENDAR_DATA[dateKey] = {
+    eventName:   existing.eventName || "",
     outfitKey:   getOutfitKey(items),
     thumbnail:   items[0].imageDataUrl,
     outfitLabel: items.map(formatItemLabel).join(" | "),
@@ -140,8 +142,20 @@ function saveOutfitToDay(items, dateKey) {
 }
 
 function removeOutfitFromDay(dateKey) {
-  delete CALENDAR_DATA[dateKey];
+  const eventName = CALENDAR_DATA[dateKey] && CALENDAR_DATA[dateKey].eventName;
+  if (eventName) {
+    CALENDAR_DATA[dateKey] = { eventName };
+  } else {
+    delete CALENDAR_DATA[dateKey];
+  }
   saveCalendarData(); renderCalendar(); renderFilteredOutfits();
+}
+
+function saveEventToDay(dateKey, eventName) {
+  if (!CALENDAR_DATA[dateKey]) CALENDAR_DATA[dateKey] = {};
+  CALENDAR_DATA[dateKey].eventName = eventName;
+  if (!eventName && !CALENDAR_DATA[dateKey].thumbnail) delete CALENDAR_DATA[dateKey];
+  saveCalendarData();
 }
 
 /* ---------- Helpers ---------- */
@@ -602,25 +616,62 @@ function renderCalendar() {
   calendarGrid.innerHTML = "";
   const week     = getCurrentWeekDays();
   const todayKey = new Date().toISOString().split("T")[0];
-  const hasAny   = week.some(({ key }) => CALENDAR_DATA[key]);
+  const hasAny   = week.some(({ key }) => CALENDAR_DATA[key] && (CALENDAR_DATA[key].thumbnail || CALENDAR_DATA[key].eventName));
   calendarMsg.style.display = hasAny ? "none" : "";
+
   week.forEach(({ name, date, key }) => {
     const entry   = CALENDAR_DATA[key];
     const isToday = key === todayKey;
-    const day     = document.createElement("div"); day.className = "calendar-day" + (isToday ? " today" : "");
+
+    const day = document.createElement("div");
+    day.className = "calendar-day" + (isToday ? " today" : "");
+
+    // Day name + date
     const dn = document.createElement("div"); dn.className = "cal-day-name"; dn.textContent = name;
     const dd = document.createElement("div"); dd.className = "cal-day-date"; dd.textContent = date;
     day.appendChild(dn); day.appendChild(dd);
+
+    // Event name input
+    const eventInput       = document.createElement("input");
+    eventInput.type        = "text";
+    eventInput.className   = "cal-event-input";
+    eventInput.placeholder = "Add event…";
+    eventInput.value       = (entry && entry.eventName) ? entry.eventName : "";
+    eventInput.maxLength   = 28;
+    eventInput.addEventListener("blur", () => {
+      saveEventToDay(key, eventInput.value.trim());
+    });
+    eventInput.addEventListener("keydown", e => { if (e.key === "Enter") eventInput.blur(); });
+    day.appendChild(eventInput);
+
+    // Outfit thumbnail + label
     if (entry && entry.thumbnail) {
+      const outfitWrap = document.createElement("div"); outfitWrap.className = "cal-outfit-wrap";
+
       const thumb = document.createElement("div"); thumb.className = "cal-outfit-thumb";
-      const img   = document.createElement("img"); img.src = entry.thumbnail; img.alt = entry.outfitLabel || "Outfit"; img.title = entry.outfitLabel || "";
-      const rmv   = document.createElement("button"); rmv.className = "cal-remove-btn"; rmv.textContent = "×";
+      const img   = document.createElement("img");
+      img.src = entry.thumbnail; img.alt = entry.outfitLabel || "Outfit"; img.title = entry.outfitLabel || "";
+      const rmv = document.createElement("button"); rmv.className = "cal-remove-btn"; rmv.textContent = "×";
+      rmv.title = "Remove outfit";
       rmv.addEventListener("click", e => { e.stopPropagation(); removeOutfitFromDay(key); });
-      thumb.appendChild(img); thumb.appendChild(rmv); day.appendChild(thumb);
+      thumb.appendChild(img); thumb.appendChild(rmv);
+      outfitWrap.appendChild(thumb);
+
+      // Brief outfit label
+      if (entry.outfitLabel) {
+        const lbl       = document.createElement("div");
+        lbl.className   = "cal-outfit-label";
+        // Show just the first item's description to keep it compact
+        lbl.textContent = entry.outfitLabel.split(" | ")[0];
+        outfitWrap.appendChild(lbl);
+      }
+
+      day.appendChild(outfitWrap);
     } else {
-      const empty = document.createElement("div"); empty.className = "cal-empty"; empty.textContent = "—";
+      const empty = document.createElement("div"); empty.className = "cal-empty"; empty.textContent = "No outfit";
       day.appendChild(empty);
     }
+
     calendarGrid.appendChild(day);
   });
 }
