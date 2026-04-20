@@ -519,6 +519,48 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 }
 
 /* ═══════════════════════════════════════
+   PROFILE SECTIONS
+═══════════════════════════════════════ */
+.profile-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cream-3);
+}
+
+.profile-section-title {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--navy);
+  margin: 0 0 12px; font-family: "Inter", sans-serif;
+  font-style: normal;
+}
+
+.mini-outfit-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid rgba(13,37,71,0.06);
+}
+.mini-outfit-card:last-child { border-bottom: none; }
+
+.mini-outfit-thumbs { display: flex; gap: 4px; flex-shrink: 0; }
+.mini-outfit-thumbs img {
+  width: 44px; height: 54px; object-fit: cover;
+  border-radius: var(--radius-sm); border: 1px solid var(--cream-3);
+}
+
+.mini-outfit-details { flex: 1; min-width: 0; }
+
+.mini-outfit-label {
+  font-size: 0.78rem; font-weight: 600; color: var(--text);
+  line-height: 1.35; margin-bottom: 3px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+
+.mini-outfit-info { font-size: 0.70rem; color: var(--mid); }
+
+.mini-outfit-stars { display: flex; gap: 2px; margin-top: 4px; }
+.mini-star        { font-size: 0.9rem; color: var(--cream-3); }
+.mini-star.filled { color: var(--gold); }
+
+/* ═══════════════════════════════════════
    SHARED UTILITIES
 ═══════════════════════════════════════ */
 .hidden { display: none !important; }

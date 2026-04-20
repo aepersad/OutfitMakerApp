@@ -240,8 +240,34 @@ function getOccasionClass(occ) {
            "Date Night":"occ-date", Sport:"occ-sport", Weekend:"occ-weekend" }[occ] || "occ-default";
 }
 
-function isOutfitSaved(items) {
-  return !!SAVED_OUTFITS[getOutfitKey(items)];
+function getItemsFromKey(outfitKey) {
+  const ids   = outfitKey.split("|");
+  const items = ids.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+  return items.length === ids.length ? items : null;
+}
+
+function formatDate(isoDate) {
+  if (!isoDate) return "";
+  const d = new Date(isoDate);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function renderMiniOutfitCard(items, data) {
+  const card = document.createElement("div"); card.className = "mini-outfit-card";
+  const thumbs = document.createElement("div"); thumbs.className = "mini-outfit-thumbs";
+  items.slice(0, 4).forEach(item => {
+    const img = document.createElement("img"); img.src = item.imageDataUrl; img.alt = generateItemName(item);
+    thumbs.appendChild(img);
+  });
+  const info = document.createElement("div"); info.className = "mini-outfit-details";
+  const lbl  = document.createElement("div"); lbl.className = "mini-outfit-label";
+  lbl.textContent = items.map(generateItemName).join(" + ");
+  info.appendChild(lbl);
+  card.appendChild(thumbs); card.appendChild(info);
+  return { card, info };
+}
+
+function isOutfitSaved(items) {  return !!SAVED_OUTFITS[getOutfitKey(items)];
 }
 
 function toggleSaveOutfit(items, occasion) {
@@ -829,6 +855,49 @@ function renderStyleProfile() {
     wrap.appendChild(bar); row.appendChild(lbl); row.appendChild(wrap); row.appendChild(pctEl);
     styleProfileBars.appendChild(row);
   });
+
+  // ── Recently Worn ──
+  const recentWorn = Object.entries(OUTFIT_DATA)
+    .filter(([, d]) => d.wears > 0 && d.lastWorn)
+    .sort((a, b) => new Date(b[1].lastWorn) - new Date(a[1].lastWorn))
+    .slice(0, 4);
+
+  if (recentWorn.length) {
+    const sec = document.createElement("div"); sec.className = "profile-section";
+    const h = document.createElement("p"); h.className = "profile-section-title"; h.textContent = "Recently Worn";
+    sec.appendChild(h);
+    recentWorn.forEach(([key, data]) => {
+      const items = getItemsFromKey(key); if (!items) return;
+      const { card, info } = renderMiniOutfitCard(items, data);
+      const sub = document.createElement("div"); sub.className = "mini-outfit-info";
+      sub.textContent = `${data.wears} wear${data.wears !== 1 ? "s" : ""} · Last worn ${formatDate(data.lastWorn)}`;
+      info.appendChild(sub); sec.appendChild(card);
+    });
+    styleProfileBars.appendChild(sec);
+  }
+
+  // ── Rated Outfits ──
+  const ratedOutfits = Object.entries(OUTFIT_DATA)
+    .filter(([, d]) => d.rating > 0)
+    .sort((a, b) => b[1].rating - a[1].rating)
+    .slice(0, 5);
+
+  if (ratedOutfits.length) {
+    const sec = document.createElement("div"); sec.className = "profile-section";
+    const h = document.createElement("p"); h.className = "profile-section-title"; h.textContent = "Rated Outfits";
+    sec.appendChild(h);
+    ratedOutfits.forEach(([key, data]) => {
+      const items = getItemsFromKey(key); if (!items) return;
+      const { card, info } = renderMiniOutfitCard(items, data);
+      const stars = document.createElement("div"); stars.className = "mini-outfit-stars";
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span"); s.className = "mini-star" + (i <= data.rating ? " filled" : ""); s.textContent = "★";
+        stars.appendChild(s);
+      }
+      info.appendChild(stars); sec.appendChild(card);
+    });
+    styleProfileBars.appendChild(sec);
+  }
 }
 
 /* ---------- Calendar ---------- */
