@@ -45,6 +45,8 @@ const shoeTypeSelect      = document.getElementById("shoeTypeSelect");
 const outerwearTypeGroup  = document.getElementById("outerwearTypeGroup");
 const outerwearTypeSelect = document.getElementById("outerwearTypeSelect");
 const colorSelect         = document.getElementById("colorSelect");
+const color2Select        = document.getElementById("color2Select");
+const patternSelect       = document.getElementById("patternSelect");
 const occasionSelect      = document.getElementById("occasionSelect");
 const saveItemBtn         = document.getElementById("saveItemBtn");
 const cancelEditBtn       = document.getElementById("cancelEditBtn");
@@ -196,7 +198,11 @@ function formatItemLabel(item) {
     parts.push(`Outerwear (${titleCase(item.outerwearType)})`);
   }
   if (item.sleeveLength) parts.push(titleCase(item.sleeveLength));
-  if (item.color)        parts.push(titleCase(item.color));
+  if (item.color) {
+    const colorStr = item.color2 ? `${titleCase(item.color)} / ${titleCase(item.color2)}` : titleCase(item.color);
+    parts.push(colorStr);
+  }
+  if (item.pattern === "patterned") parts.push("Patterned");
   return parts.join(" • ");
 }
 
@@ -312,6 +318,8 @@ function startEdit(item) {
   if (item.category === "shoes")     shoeTypeSelect.value      = item.shoeType;
   if (item.category === "outerwear") outerwearTypeSelect.value  = item.outerwearType;
   colorSelect.value    = item.color;
+  color2Select.value   = item.color2 || "";
+  patternSelect.value  = item.pattern || "solid";
   occasionSelect.value = item.occasion || "";
 
   // Show current image
@@ -348,6 +356,8 @@ cancelEditBtn.addEventListener("click", cancelEdit);
 function normalizeItemFromForm() {
   const cat           = categorySelect.value;
   const color         = colorSelect.value;
+  const color2        = color2Select.value;
+  const pattern       = patternSelect.value || "solid";
   const occasion      = occasionSelect.value;
   const topType       = topTypeSelect.value;
   const bottomType    = bottomTypeSelect.value;
@@ -370,7 +380,7 @@ function normalizeItemFromForm() {
     item: {
       id: editingItemId || uuid(),
       imageDataUrl: pendingImageDataUrl,
-      category: cat, color, occasion,
+      category: cat, color, color2, pattern, occasion,
       topType:       cat === "top"       ? topType       : "",
       bottomType:    cat === "bottom"    ? bottomType    : "",
       skirtLength:   (cat === "bottom" && bottomType === "skirt") ? skirtLength : "",
@@ -385,7 +395,8 @@ function normalizeItemFromForm() {
 function resetForm() {
   resetPreview();
   [categorySelect, topTypeSelect, bottomTypeSelect, skirtLengthSelect, sleeveSelect,
-   dressLengthSelect, colorSelect, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
+   dressLengthSelect, colorSelect, color2Select, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
+  if (patternSelect) patternSelect.value = "solid";
   updateConditionalFields();
 }
 
@@ -445,7 +456,14 @@ function layerAllowedWithDress(d){ return d && d.category === "dress" && ["sleev
 
 const NEUTRALS = ["black","white","gray","blue","beige","cream","brown","denim_blue"];
 function colorsCompatible(a, b) { if (!a || !b || a === b) return true; if (NEUTRALS.includes(a) || NEUTRALS.includes(b)) return true; return true; }
-function outfitColorsOK(items)   { for (let i = 0; i < items.length; i++) for (let j = i+1; j < items.length; j++) if (!colorsCompatible(items[i].color, items[j].color)) return false; return true; }
+function outfitColorsOK(items) {
+  // Max 1 patterned item per outfit
+  if (items.filter(i => i.pattern === "patterned").length > 1) return false;
+  for (let i = 0; i < items.length; i++)
+    for (let j = i + 1; j < items.length; j++)
+      if (!colorsCompatible(items[i].color, items[j].color)) return false;
+  return true;
+}
 
 function uniqOutfits(list) {
   const seen = new Set(), unique = [];
