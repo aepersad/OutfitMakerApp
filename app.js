@@ -210,7 +210,7 @@ function normalizeItemFromForm() {
   if (!pendingImageDataUrl) return { error: "Choose an image first." };
   if (!cat)     return { error: "Select a category." };
   if (!color)   return { error: "Select a color." };
-  if (!occasion) return { error: "Select an occasion." };
+
 
   if (cat === "top")       { if (!topType)  return { error: "Select a top type." };       if (!sleeve) return { error: "Select a sleeve length." }; }
   if (cat === "bottom")    { if (!bottomType) return { error: "Select a bottom type." }; }
@@ -269,7 +269,7 @@ function getFilteredItems() {
 
 /* ---------- Matching rule helpers ---------- */
 function isShirt(i)    { return i.category === "top" && i.topType === "shirt"; }
-function isLayer(i)    { return i.category === "top" && ["cardigan","sweater","jacket"].includes(i.topType); }
+function isLayer(i)    { return i.category === "top" && i.topType === "sweater"; }
 function isBottom(i)   { return i.category === "bottom"; }
 function isDress(i)    { return i.category === "dress"; }
 function isShoe(i)     { return i.category === "shoes"; }
