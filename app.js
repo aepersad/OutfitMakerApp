@@ -7,7 +7,8 @@ const DAY_NAMES      = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 /* ---------- Keys ---------- */
 function itemsKey(id)      { return `buildmyoutfit_items_${id}_v1`; }
 function outfitDataKey(id) { return `buildmyoutfit_outfitdata_${id}_v1`; }
-function calendarKey(id)   { return `buildmyoutfit_calendar_${id}_v1`; }
+function calendarKey(id)      { return `buildmyoutfit_calendar_${id}_v1`; }
+function savedOutfitsKey(id)  { return `buildmyoutfit_saved_${id}_v1`; }
 
 function safeParse(raw, fallback) {
   try {
@@ -62,7 +63,8 @@ const selectedLabel       = document.getElementById("selectedLabel");
 const outfitMsg           = document.getElementById("outfitMsg");
 const occasionFilterBar   = document.getElementById("occasionFilterBar");
 const surpriseMeBtn       = document.getElementById("surpriseMeBtn");
-const calendarGrid        = document.getElementById("calendarGrid");
+const savedGrid           = document.getElementById("savedGrid");
+const savedMsg            = document.getElementById("savedMsg");
 const calendarMsg         = document.getElementById("calendarMsg");
 const styleProfileMsg     = document.getElementById("styleProfileMsg");
 const styleProfileBars    = document.getElementById("styleProfileBars");
@@ -78,6 +80,7 @@ logoutBtn.addEventListener("click", () => {
 let ITEMS                = loadItems();
 let OUTFIT_DATA          = loadOutfitData();
 let CALENDAR_DATA        = loadCalendarData();
+let SAVED_OUTFITS        = loadSavedOutfits();
 let pendingImageDataUrl  = "";
 let editingItemId        = null;
 let activeOccasionFilter = "All";
@@ -103,7 +106,9 @@ function loadOutfitData() {
 }
 function saveOutfitData()   { localStorage.setItem(outfitDataKey(profile.id), JSON.stringify(OUTFIT_DATA)); }
 function loadCalendarData() { return safeParse(localStorage.getItem(calendarKey(profile.id)), {}); }
-function saveCalendarData() { localStorage.setItem(calendarKey(profile.id),   JSON.stringify(CALENDAR_DATA)); }
+function saveCalendarData() { localStorage.setItem(calendarKey(profile.id), JSON.stringify(CALENDAR_DATA)); }
+function loadSavedOutfits() { return safeParse(localStorage.getItem(savedOutfitsKey(profile.id)), {}); }
+function saveSavedOutfits() { localStorage.setItem(savedOutfitsKey(profile.id), JSON.stringify(SAVED_OUTFITS)); }
 
 function getOutfitKey(items) { return items.map(i => i.id).slice().sort().join("|"); }
 
@@ -235,7 +240,24 @@ function getOccasionClass(occ) {
            "Date Night":"occ-date", Sport:"occ-sport", Weekend:"occ-weekend" }[occ] || "occ-default";
 }
 
-function isRecentlyWorn(data) {
+function isOutfitSaved(items) {
+  return !!SAVED_OUTFITS[getOutfitKey(items)];
+}
+
+function toggleSaveOutfit(items, occasion) {
+  const key = getOutfitKey(items);
+  if (SAVED_OUTFITS[key]) {
+    delete SAVED_OUTFITS[key];
+  } else {
+    SAVED_OUTFITS[key] = {
+      items:    items.map(i => ({ ...i })),
+      occasion: occasion || "",
+      savedAt:  new Date().toISOString(),
+    };
+  }
+  saveSavedOutfits();
+  renderSavedOutfits();
+}
   if (!data.lastWorn) return false;
   const last     = new Date(data.lastWorn);
   const today    = new Date();
@@ -687,12 +709,21 @@ function renderOutfitCard(items, occasion) {
   }
   card.appendChild(ratingRow);
 
-  // Like + Wear footer
-  const footer  = document.createElement("div"); footer.className = "outfit-footer";
+  // Like + Save + Wear footer
+  const footer   = document.createElement("div"); footer.className = "outfit-footer";
+  const leftBtns = document.createElement("div"); leftBtns.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;";
+
   const likeBtn = document.createElement("button");
   likeBtn.className   = "like-outfit-btn" + (data.liked ? " liked" : "");
   likeBtn.textContent = data.liked ? "♥ Liked" : "♡ Like";
   likeBtn.addEventListener("click", () => { OUTFIT_DATA[key].liked = !OUTFIT_DATA[key].liked; saveOutfitData(); renderFilteredOutfits(); renderStyleProfile(); });
+
+  const saveBtn = document.createElement("button");
+  saveBtn.className   = "save-outfit-btn" + (isOutfitSaved(items) ? " saved" : "");
+  saveBtn.textContent = isOutfitSaved(items) ? "★ Saved" : "☆ Save";
+  saveBtn.addEventListener("click", () => { toggleSaveOutfit(items, occasion); renderFilteredOutfits(); });
+
+  leftBtns.appendChild(likeBtn); leftBtns.appendChild(saveBtn);
 
   const wearArea  = document.createElement("div"); wearArea.className = "wear-area";
   const wearCount = document.createElement("span"); wearCount.className = "wear-count";
@@ -704,7 +735,7 @@ function renderOutfitCard(items, occasion) {
     saveOutfitData(); renderFilteredOutfits(); renderStyleProfile();
   });
   wearArea.appendChild(wearCount); wearArea.appendChild(wearBtn);
-  footer.appendChild(likeBtn); footer.appendChild(wearArea);
+  footer.appendChild(leftBtns); footer.appendChild(wearArea);
   card.appendChild(footer);
 
   // Complete the look
@@ -949,11 +980,29 @@ function renderOutfits(selected, outfits) {
   buildOccasionFilterBar(outfits); renderFilteredOutfits();
 }
 
-/* ---------- Init ---------- */
+/* ---------- Saved Outfits ---------- */
+function renderSavedOutfits() {
+  if (!savedGrid) return;
+  savedGrid.innerHTML = "";
+  const entries = Object.values(SAVED_OUTFITS);
+  if (!entries.length) {
+    savedMsg.style.display = "";
+    return;
+  }
+  savedMsg.style.display = "none";
+  // Sort newest first
+  entries.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+  entries.forEach(({ items, occasion }) => {
+    savedGrid.appendChild(renderOutfitCard(items, occasion));
+  });
+}
+
+
 updateConditionalFields();
 renderCloset();
 updateCounts();
 clearOutfits();
 renderCalendar();
 renderStyleProfile();
+renderSavedOutfits();
 initTabs();

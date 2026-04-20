@@ -203,6 +203,7 @@
           <nav class="tab-bar" role="tablist">
             <button class="tab-btn active" data-panel="panel-closet"   role="tab" aria-selected="true">Closet</button>
             <button class="tab-btn"        data-panel="panel-matches"  role="tab" aria-selected="false">Matches</button>
+            <button class="tab-btn"        data-panel="panel-saved"    role="tab" aria-selected="false">Saved</button>
             <button class="tab-btn"        data-panel="panel-calendar" role="tab" aria-selected="false">Calendar</button>
             <button class="tab-btn"        data-panel="panel-profile"  role="tab" aria-selected="false">Profile</button>
           </nav>
@@ -248,6 +249,12 @@
             <div id="outfitsGrid"></div>
           </div>
 
+          <!-- Saved tab -->
+          <div id="panel-saved" class="tab-panel hidden" role="tabpanel">
+            <p id="savedMsg" class="muted" style="margin-bottom:14px;">Save outfits from the Matches tab to see them here.</p>
+            <div id="savedGrid"></div>
+          </div>
+
           <!-- Calendar tab -->
           <div id="panel-calendar" class="tab-panel hidden" role="tabpanel">
             <p id="calendarMsg" class="muted" style="margin-bottom:16px;">Save outfits from the Matches tab to plan your week.</p>
@@ -266,6 +273,6 @@
     </div>
   </main>
 
-  <script src="app.js?v=15"></script>
+  <script src="app.js?v=16"></script>
 </body>
 </html>

@@ -268,7 +268,7 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 }
 .surprise-btn:hover { background: var(--cream-3); transform: none; }
 
-#outfitsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+#outfitsGrid, #savedGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
 
 .outfit-card {
   background: var(--white); border: 1px solid rgba(13,37,71,0.09);
@@ -365,14 +365,23 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
   border-top: 1px solid rgba(13,37,71,0.07); padding-top: 10px; margin-top: 6px;
 }
 
-.like-outfit-btn {
-  font-size: 0.70rem; font-weight: 700; letter-spacing: 0.04em; padding: 6px 12px;
+.like-outfit-btn {  font-size: 0.70rem; font-weight: 700; letter-spacing: 0.04em; padding: 6px 12px;
+
   border-radius: 999px; border: 1px solid var(--cream-3);
   background: transparent; color: var(--mid); cursor: pointer;
   transition: background 0.14s, color 0.14s, border-color 0.14s;
 }
 .like-outfit-btn:hover { background: #fce8f0; color: #8b1a4a; border-color: #f0a0c0; transform: none; }
 .like-outfit-btn.liked { background: #fce8f0; color: #8b1a4a; border-color: #f0a0c0; }
+
+.save-outfit-btn {
+  font-size: 0.70rem; font-weight: 700; letter-spacing: 0.04em; padding: 6px 12px;
+  border-radius: 999px; border: 1px solid var(--cream-3);
+  background: transparent; color: var(--mid); cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.save-outfit-btn:hover  { background: var(--cream-2); color: var(--navy); border-color: var(--navy-3); transform: none; }
+.save-outfit-btn.saved  { background: var(--navy); color: var(--white); border-color: var(--navy); }
 
 .wear-area  { display: flex; align-items: center; gap: 7px; }
 .wear-count { font-size: 0.70rem; font-weight: 600; color: var(--mid); white-space: nowrap; }
