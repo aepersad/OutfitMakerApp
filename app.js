@@ -230,8 +230,26 @@ fileInput.addEventListener("change", () => {
   if (!editingItemId && ITEMS.length >= MAX_ITEMS) { setUploadMsg(`Closet is full (${MAX_ITEMS} items max).`); resetPreview(); return; }
   const reader = new FileReader();
   reader.onload = () => {
-    pendingImageDataUrl = String(reader.result || "");
-    imgPreview.src = pendingImageDataUrl; imgPreview.style.display = "block"; previewPlaceholder.style.display = "none";
+    const rawDataUrl = String(reader.result || "");
+    // Compress image to max 800px and JPEG 80% to stay within localStorage limits
+    const tempImg = new Image();
+    tempImg.onload = () => {
+      const MAX_SIZE = 800;
+      let { width, height } = tempImg;
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+        width  = Math.round(width  * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(tempImg, 0, 0, width, height);
+      pendingImageDataUrl          = canvas.toDataURL("image/jpeg", 0.80);
+      imgPreview.src               = pendingImageDataUrl;
+      imgPreview.style.display     = "block";
+      previewPlaceholder.style.display = "none";
+    };
+    tempImg.src = rawDataUrl;
   };
   reader.readAsDataURL(file);
 });
@@ -726,7 +744,20 @@ function renderCloset() {
 function renderOutfits(selected, outfits) {
   lastSelectedItem = selected; lastRenderedOutfits = outfits; activeOccasionFilter = "All";
   selectedLabel.textContent = selected ? `Selected: ${formatItemLabel(selected)}` : "✦ Surprise outfit";
-  if (!outfits.length) { occasionFilterBar.innerHTML = ""; outfitsGrid.innerHTML = ""; setOutfitMsg("No outfits found for this item yet."); return; }
+  if (!outfits.length) {
+    occasionFilterBar.innerHTML = ""; outfitsGrid.innerHTML = "";
+    // Give a helpful reason why no matches were found
+    let reason = "No outfits found for this item yet.";
+    if (selected) {
+      if (isBottom(selected))   reason = "No matches yet — add a shirt to your closet to pair with this.";
+      if (isShirt(selected))    reason = "No matches yet — add a bottom (jeans, skirt, etc.) to your closet.";
+      if (isLayer(selected))    reason = "No matches yet — add a short-sleeve shirt or dress to layer with this.";
+      if (isDress(selected))    reason = "Dress saved! Add more items to generate outfit variations.";
+      if (isShoe(selected))     reason = "No matches yet — add tops and bottoms to your closet first.";
+      if (isOuterwear(selected)) reason = "No matches yet — add tops and bottoms to your closet first.";
+    }
+    setOutfitMsg(reason); return;
+  }
   buildOccasionFilterBar(outfits); renderFilteredOutfits();
 }
 
