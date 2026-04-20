@@ -221,28 +221,42 @@ function isRecentlyWorn(data) {
 
 /* ---------- Conditional fields ---------- */
 function updateConditionalFields() {
-  const cat    = categorySelect.value;
-  const bottom = bottomTypeSelect.value;
-  const isSkirt = cat === "bottom" && bottom === "skirt";
+  const cat     = categorySelect.value;
+  const bottom  = bottomTypeSelect.value;
+  const topType = topTypeSelect.value;
+  const isTankTop = cat === "top" && topType === "tank-top";
+  const isSkirt   = cat === "bottom" && bottom === "skirt";
 
   topTypeGroup.classList.toggle("hidden",       cat !== "top");
   bottomTypeGroup.classList.toggle("hidden",    cat !== "bottom");
   skirtLengthGroup.classList.toggle("hidden",   !isSkirt);
-  sleeveGroup.classList.toggle("hidden",        !(cat === "top" || cat === "dress"));
+
+  // Sleeve group: visible for tops (not tank top) and dresses
+  const showSleeve = (cat === "top" && !isTankTop) || cat === "dress";
+  sleeveGroup.classList.toggle("hidden", !showSleeve);
+
+  // Sleeveless option: only valid for dresses, not tops
+  const sleevelessOpt = document.getElementById("sleeveOptSleeveless");
+  if (sleevelessOpt) {
+    sleevelessOpt.style.display = cat === "dress" ? "" : "none";
+    if (cat !== "dress" && sleeveSelect.value === "sleeveless") sleeveSelect.value = "";
+  }
+
   dressLengthGroup.classList.toggle("hidden",   cat !== "dress");
   shoeTypeGroup.classList.toggle("hidden",      cat !== "shoes");
   outerwearTypeGroup.classList.toggle("hidden", cat !== "outerwear");
 
-  if (cat !== "top")       topTypeSelect.value       = "";
-  if (cat !== "bottom")    bottomTypeSelect.value    = "";
-  if (!isSkirt)            skirtLengthSelect.value   = "";
-  if (!(cat === "top" || cat === "dress")) sleeveSelect.value = "";
+  if (cat !== "top")       { topTypeSelect.value = ""; }
+  if (cat !== "bottom")    { bottomTypeSelect.value = ""; }
+  if (!isSkirt)             skirtLengthSelect.value = "";
+  if (!showSleeve || isTankTop) sleeveSelect.value = "";
   if (cat !== "dress")     dressLengthSelect.value   = "";
   if (cat !== "shoes")     shoeTypeSelect.value      = "";
   if (cat !== "outerwear") outerwearTypeSelect.value  = "";
 }
 categorySelect.addEventListener("change", updateConditionalFields);
 bottomTypeSelect.addEventListener("change", updateConditionalFields);
+topTypeSelect.addEventListener("change", updateConditionalFields);
 
 /* ---------- Image preview ---------- */
 function resetPreview() {
@@ -292,10 +306,9 @@ function startEdit(item) {
   // Populate all form fields
   categorySelect.value = item.category;
   updateConditionalFields();
-  if (item.category === "top")       topTypeSelect.value       = item.topType;
-  if (item.category === "bottom")  { bottomTypeSelect.value    = item.bottomType; updateConditionalFields(); if (item.bottomType === "skirt") skirtLengthSelect.value = item.skirtLength || ""; }
-  if (item.category === "top" || item.category === "dress") sleeveSelect.value = item.sleeveLength;
-  if (item.category === "dress")     dressLengthSelect.value   = item.dressLength;
+  if (item.category === "top")     { topTypeSelect.value = item.topType; updateConditionalFields(); if (item.topType !== "tank-top") sleeveSelect.value = item.sleeveLength; }
+  if (item.category === "bottom")  { bottomTypeSelect.value = item.bottomType; updateConditionalFields(); if (item.bottomType === "skirt") skirtLengthSelect.value = item.skirtLength || ""; }
+  if (item.category === "dress")   { sleeveSelect.value = item.sleeveLength; dressLengthSelect.value = item.dressLength; }
   if (item.category === "shoes")     shoeTypeSelect.value      = item.shoeType;
   if (item.category === "outerwear") outerwearTypeSelect.value  = item.outerwearType;
   colorSelect.value    = item.color;
@@ -347,8 +360,8 @@ function normalizeItemFromForm() {
   if (!pendingImageDataUrl) return { error: "Choose an image first." };
   if (!cat)   return { error: "Select a category." };
   if (!color) return { error: "Select a color." };
-  if (cat === "top")       { if (!topType)      return { error: "Select a top type." };       if (!sleeve)      return { error: "Select a sleeve length." }; }
-  if (cat === "bottom")    { if (!bottomType)   return { error: "Select a bottom type." };    if (bottomType === "skirt" && !skirtLength) return { error: "Select a skirt length." }; }
+  if (cat === "top")       { if (!topType) return { error: "Select a top type." }; if (topType !== "tank-top" && !sleeve) return { error: "Select a sleeve length." }; }
+  if (cat === "bottom")    { if (!bottomType) return { error: "Select a bottom type." }; if (bottomType === "skirt" && !skirtLength) return { error: "Select a skirt length." }; }
   if (cat === "dress")     { if (!sleeve)       return { error: "Select a sleeve length." };  if (!dressLength) return { error: "Select a dress length." }; }
   if (cat === "shoes")     { if (!shoeType)     return { error: "Select a shoe type." }; }
   if (cat === "outerwear") { if (!outerwearType) return { error: "Select an outerwear type." }; }
@@ -361,7 +374,7 @@ function normalizeItemFromForm() {
       topType:       cat === "top"       ? topType       : "",
       bottomType:    cat === "bottom"    ? bottomType    : "",
       skirtLength:   (cat === "bottom" && bottomType === "skirt") ? skirtLength : "",
-      sleeveLength:  (cat === "top" || cat === "dress") ? sleeve : "",
+      sleeveLength:  (cat === "top" && topType !== "tank-top") ? sleeve : (cat === "dress" ? sleeve : ""),
       dressLength:   cat === "dress"     ? dressLength   : "",
       shoeType:      cat === "shoes"     ? shoeType      : "",
       outerwearType: cat === "outerwear" ? outerwearType : "",
@@ -420,14 +433,14 @@ function getFilteredItems() {
 }
 
 /* ---------- Matching rules ---------- */
-function isShirt(i)    { return i.category === "top" && ["shirt","t-shirt","blouse","button-up"].includes(i.topType); }
+function isShirt(i)    { return i.category === "top" && ["shirt","t-shirt","blouse","button-up","tank-top"].includes(i.topType); }
 function isLayer(i)    { return i.category === "top" && i.topType === "sweater"; }
 function isBottom(i)   { return i.category === "bottom"; }
 function isDress(i)    { return i.category === "dress"; }
 function isShoe(i)     { return i.category === "shoes"; }
 function isOuterwear(i){ return i.category === "outerwear"; }
 function isCardigan(i) { return i.category === "outerwear" && i.outerwearType === "cardigan"; }
-function layerAllowedWithTop(t)  { return t && t.category === "top" && t.sleeveLength === "short"; }
+function layerAllowedWithTop(t)  { return t && t.category === "top" && (t.sleeveLength === "short" || t.topType === "tank-top"); }
 function layerAllowedWithDress(d){ return d && d.category === "dress" && ["sleeveless","short"].includes(d.sleeveLength); }
 
 const NEUTRALS = ["black","white","gray","blue","beige","cream","brown","denim_blue"];
@@ -453,7 +466,7 @@ function generateAllClothingOutfits() {
   });
   dresses.forEach(d => {
     out.push([d]);
-    if (layerAllowedWithDress(d)) layers.forEach(l => out.push([l, d]));
+    if (layerAllowedWithDress(d)) layers.forEach(l => {}); // sweaters do not layer over dresses
   });
   return uniqOutfits(out.filter(outfitColorsOK));
 }
@@ -494,7 +507,7 @@ function generateOutfits(selected) {
 
   if (isLayer(selected)) {
     shirts.forEach(t => { if (!layerAllowedWithTop(t)) return; bottoms.forEach(b => add([selected, t, b])); });
-    dresses.forEach(d => { if (!layerAllowedWithDress(d)) return; add([selected, d]); });
+    // Sweaters do not layer over dresses
     return uniqOutfits(out);
   }
 
@@ -512,7 +525,7 @@ function generateOutfits(selected) {
   if (isDress(selected)) {
     add([selected]);
     if (layerAllowedWithDress(selected)) {
-      layers.forEach(l => add([l, selected]));
+      // Only cardigans layer over dresses, not sweaters
       cardigans.forEach(c => add([c, selected]));
     }
     return uniqOutfits(out);
