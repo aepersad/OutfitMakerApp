@@ -263,7 +263,7 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .outfit-items.three { grid-template-columns: repeat(3, 1fr); }
 .outfit-items.four  { grid-template-columns: repeat(2, 1fr); }
 .outfit-items.many  { grid-template-columns: repeat(3, 1fr); }
-.outfit-items img   { aspect-ratio: 3/4; border-radius: var(--radius-sm); }
+.outfit-items img   { aspect-ratio: 3/4; border-radius: var(--radius-sm); min-height: 80px; background: var(--cream-2); }
 
 .outfit-meta { font-size: 0.74rem; color: var(--mid); font-weight: 500; line-height: 1.4; margin-bottom: 10px; }
 

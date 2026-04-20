@@ -478,7 +478,16 @@ function renderFilteredOutfits() {
   if (!filtered.length) { setOutfitMsg("No outfits found for this occasion."); return; }
   const total = lastRenderedOutfits.length;
   setOutfitMsg(activeOccasionFilter === "All" ? `Found ${total} outfit${total === 1 ? "" : "s"}.` : `Showing ${filtered.length} of ${total} outfit${total === 1 ? "" : "s"}.`);
-  filtered.forEach(items => outfitsGrid.appendChild(renderOutfitCard(items, getOutfitOccasion(items))));
+  filtered.forEach(items => {
+    try {
+      outfitsGrid.appendChild(renderOutfitCard(items, getOutfitOccasion(items)));
+    } catch(e) {
+      const err = document.createElement("div");
+      err.style.cssText = "padding:12px;color:#882020;font-size:0.8rem;border:1px solid #f0c0c0;border-radius:8px;background:#fff7f7;";
+      err.textContent = "Could not display outfit: " + e.message;
+      outfitsGrid.appendChild(err);
+    }
+  });
 }
 
 /* ---------- Outfit card ---------- */
@@ -596,7 +605,11 @@ surpriseMeBtn.addEventListener("click", () => {
   lastRenderedOutfits = [random]; lastSelectedItem = null; activeOccasionFilter = "All";
   selectedLabel.textContent = "✦ Surprise outfit"; occasionFilterBar.innerHTML = ""; outfitsGrid.innerHTML = "";
   setOutfitMsg("Here's a random outfit from your closet!");
-  outfitsGrid.appendChild(renderOutfitCard(random, getOutfitOccasion(random)));
+  try {
+    outfitsGrid.appendChild(renderOutfitCard(random, getOutfitOccasion(random)));
+  } catch(e) {
+    setOutfitMsg("Error displaying outfit: " + e.message);
+  }
   switchTab("panel-matches");
 });
 
@@ -730,12 +743,28 @@ function renderCloset() {
       body.appendChild(tag);
     }
     const actions = document.createElement("div"); actions.className = "item-actions";
-    actions.appendChild(createBtn("Use", "primary", () => { renderOutfits(item, generateOutfits(item)); switchTab("panel-matches"); }));
-    actions.appendChild(createBtn("Edit", "secondary", () => { startEdit(item); }));
-    actions.appendChild(createBtn("Delete", "danger", () => {
+    const useBtn = createBtn("Use", "primary", () => {
+      try {
+        const outfits = generateOutfits(item);
+        renderOutfits(item, outfits);
+        switchTab("panel-matches");
+      } catch(e) {
+        setOutfitMsg("Error: " + e.message);
+        switchTab("panel-matches");
+      }
+    });
+    useBtn.style.width = "100%";
+    const editDelRow = document.createElement("div");
+    editDelRow.style.cssText = "display:flex;gap:6px;width:100%;";
+    const editBtn = createBtn("Edit", "secondary", () => { startEdit(item); });
+    const delBtn  = createBtn("Delete", "danger", () => {
       if (editingItemId === item.id) cancelEdit();
       ITEMS = ITEMS.filter(c => c.id !== item.id); saveItems(); renderCloset(); clearOutfits(); updateCounts();
-    }));
+    });
+    editDelRow.appendChild(editBtn); editDelRow.appendChild(delBtn);
+    editBtn.style.flex = "1"; delBtn.style.flex = "1";
+    actions.style.cssText = "display:flex;flex-direction:column;gap:6px;";
+    actions.appendChild(useBtn); actions.appendChild(editDelRow);
     body.appendChild(actions); card.appendChild(img); card.appendChild(body); closetGrid.appendChild(card);
   });
   updateCounts();
