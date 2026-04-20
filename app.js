@@ -161,6 +161,7 @@ function saveOutfitToDay(items, dateKey) {
   CALENDAR_DATA[dateKey] = {
     eventName:   existing.eventName || "",
     outfitKey:   getOutfitKey(items),
+    thumbnails:  items.map(i => i.imageDataUrl),
     thumbnail:   items[0].imageDataUrl,
     outfitLabel: items.map(generateItemName).join(" + "),
   };
@@ -935,27 +936,32 @@ function renderCalendar() {
     day.appendChild(eventInput);
 
     // Outfit thumbnail + label
-    if (entry && entry.thumbnail) {
+    if (entry && (entry.thumbnails || entry.thumbnail)) {
+      calendarMsg.style.display = "none";
       const outfitWrap = document.createElement("div"); outfitWrap.className = "cal-outfit-wrap";
+      const thumbs = (entry.thumbnails || [entry.thumbnail]).slice(0, 3);
 
-      const thumb = document.createElement("div"); thumb.className = "cal-outfit-thumb";
-      const img   = document.createElement("img");
-      img.src = entry.thumbnail; img.alt = entry.outfitLabel || "Outfit"; img.title = entry.outfitLabel || "";
+      const thumbGrid = document.createElement("div"); thumbGrid.className = "cal-thumb-grid";
+      thumbGrid.style.cssText = "display:flex;gap:3px;width:100%;flex:1;position:relative;";
+      thumbs.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src; img.alt = entry.outfitLabel || "Outfit";
+        img.style.cssText = "flex:1;min-width:0;height:60px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--cream-3);";
+        thumbGrid.appendChild(img);
+      });
       const rmv = document.createElement("button"); rmv.className = "cal-remove-btn"; rmv.textContent = "×";
       rmv.title = "Remove outfit";
+      rmv.style.cssText = "position:absolute;top:2px;right:2px;";
       rmv.addEventListener("click", e => { e.stopPropagation(); removeOutfitFromDay(key); });
-      thumb.appendChild(img); thumb.appendChild(rmv);
-      outfitWrap.appendChild(thumb);
+      thumbGrid.style.position = "relative";
+      thumbGrid.appendChild(rmv);
+      outfitWrap.appendChild(thumbGrid);
 
-      // Brief outfit label
       if (entry.outfitLabel) {
-        const lbl       = document.createElement("div");
-        lbl.className   = "cal-outfit-label";
-        // Show just the first item's description to keep it compact
-        lbl.textContent = entry.outfitLabel.split(" | ")[0];
+        const lbl = document.createElement("div"); lbl.className = "cal-outfit-label";
+        lbl.textContent = entry.outfitLabel;
         outfitWrap.appendChild(lbl);
       }
-
       day.appendChild(outfitWrap);
     } else {
       const empty = document.createElement("div"); empty.className = "cal-empty"; empty.textContent = "No outfit";
