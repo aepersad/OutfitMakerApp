@@ -18,11 +18,11 @@
 
     <div class="grid-layout">
 
-      <!-- ── LEFT: Add Item ── -->
+      <!-- ── LEFT: Add / Edit Item ── -->
       <div class="left-column">
-        <section class="section-card">
-          <h2>Add Item</h2>
-          <div class="counter"><span id="closetCount">0/10</span></div>
+        <section class="section-card" id="addItemCard">
+          <h2 id="formTitle">Add Item</h2>
+          <div class="counter"><span id="closetCount">0/25</span></div>
 
           <div class="upload-box">
             <label for="fileInput">Upload Image</label>
@@ -146,6 +146,7 @@
 
           <div class="button-row">
             <button id="saveItemBtn" class="primary">Save Item</button>
+            <button id="cancelEditBtn" class="secondary hidden">Cancel</button>
             <button id="clearClosetBtn" class="secondary">Clear Closet</button>
           </div>
 
@@ -157,7 +158,6 @@
       <div class="right-column">
         <section class="section-card">
 
-          <!-- Tab bar -->
           <nav class="tab-bar" role="tablist">
             <button class="tab-btn active" data-panel="panel-closet"   role="tab" aria-selected="true">Closet</button>
             <button class="tab-btn"        data-panel="panel-matches"  role="tab" aria-selected="false">Matches</button>
@@ -165,13 +165,12 @@
             <button class="tab-btn"        data-panel="panel-profile"  role="tab" aria-selected="false">Profile</button>
           </nav>
 
-          <!-- ── Closet tab ── -->
+          <!-- Closet tab -->
           <div id="panel-closet" class="tab-panel" role="tabpanel">
             <div class="closet-layout">
               <div class="closet-filters">
                 <label for="closetSearch">Search</label>
                 <input type="text" id="closetSearch" placeholder="Search items…" />
-
                 <label for="closetFilterCategory">Category</label>
                 <select id="closetFilterCategory">
                   <option value="">All</option>
@@ -181,7 +180,6 @@
                   <option value="shoes">Shoes</option>
                   <option value="outerwear">Outerwear</option>
                 </select>
-
                 <label for="closetFilterOccasion">Occasion</label>
                 <select id="closetFilterOccasion">
                   <option value="">All</option>
@@ -197,7 +195,7 @@
             </div>
           </div>
 
-          <!-- ── Matches tab ── -->
+          <!-- Matches tab -->
           <div id="panel-matches" class="tab-panel hidden" role="tabpanel">
             <div class="outfit-section-header">
               <p id="selectedLabel" class="muted" style="margin:0;">Select an item from your closet.</p>
@@ -208,13 +206,13 @@
             <div id="outfitsGrid"></div>
           </div>
 
-          <!-- ── Calendar tab ── -->
+          <!-- Calendar tab -->
           <div id="panel-calendar" class="tab-panel hidden" role="tabpanel">
             <p id="calendarMsg" class="muted" style="margin-bottom:16px;">Save outfits from the Matches tab to plan your week.</p>
             <div id="calendarGrid" class="calendar-grid"></div>
           </div>
 
-          <!-- ── Profile tab ── -->
+          <!-- Profile tab -->
           <div id="panel-profile" class="tab-panel hidden" role="tabpanel">
             <p id="styleProfileMsg" class="muted">Rate and wear outfits to build your profile.</p>
             <div id="styleProfileBars"></div>
