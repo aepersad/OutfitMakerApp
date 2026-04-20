@@ -51,7 +51,7 @@ const patternSelect       = document.getElementById("patternSelect");
 const occasionSelect      = document.getElementById("occasionSelect");
 const saveItemBtn         = document.getElementById("saveItemBtn");
 const cancelEditBtn       = document.getElementById("cancelEditBtn");
-const clearClosetBtn      = document.getElementById("clearClosetBtn");
+const clearItemBtn        = document.getElementById("clearItemBtn");
 const itemNameInput       = document.getElementById("itemNameInput");
 const uploadMsg           = document.getElementById("uploadMsg");
 const closetGrid          = document.getElementById("closetGrid");
@@ -493,10 +493,9 @@ saveItemBtn.addEventListener("click", () => {
   setUploadMsg("Item saved to your closet.");
 });
 
-clearClosetBtn.addEventListener("click", () => {
-  ITEMS = []; saveItems(); renderCloset(); clearOutfits(); updateCounts();
-  if (editingItemId) cancelEdit(); else resetForm();
-  setUploadMsg("Closet cleared.");
+clearItemBtn.addEventListener("click", () => {
+  if (editingItemId) { cancelEdit(); } else { resetForm(); }
+  setUploadMsg("");
 });
 
 /* ---------- Closet toolbar ---------- */
