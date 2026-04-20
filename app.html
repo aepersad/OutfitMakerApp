@@ -17,18 +17,17 @@
     </div>
 
     <div class="grid-layout">
+
+      <!-- ── LEFT: Add Item ── -->
       <div class="left-column">
         <section class="section-card">
           <h2>Add Item</h2>
-          <div class="counter">
-            <span id="closetCount">0/10</span>
-          </div>
+          <div class="counter"><span id="closetCount">0/10</span></div>
 
           <div class="upload-box">
             <label for="fileInput">Upload Image</label>
             <input id="fileInput" type="file" accept="image/*" />
             <p id="fileName" class="muted">No file chosen</p>
-
             <div class="preview-box">
               <img id="imgPreview" style="display:none;" alt="Preview" />
               <div id="previewPlaceholder" class="preview-placeholder">Preview</div>
@@ -43,6 +42,8 @@
             <option value="top">Top</option>
             <option value="bottom">Bottom</option>
             <option value="dress">Dress</option>
+            <option value="shoes">Shoes</option>
+            <option value="outerwear">Outerwear</option>
           </select>
 
           <div id="topTypeGroup" class="hidden">
@@ -89,6 +90,32 @@
             </select>
           </div>
 
+          <div id="shoeTypeGroup" class="hidden">
+            <label for="shoeTypeSelect">Shoe type</label>
+            <select id="shoeTypeSelect">
+              <option value="">Select</option>
+              <option value="sneakers">Sneakers</option>
+              <option value="heels">Heels</option>
+              <option value="boots">Boots</option>
+              <option value="flats">Flats</option>
+              <option value="sandals">Sandals</option>
+              <option value="loafers">Loafers</option>
+            </select>
+          </div>
+
+          <div id="outerwearTypeGroup" class="hidden">
+            <label for="outerwearTypeSelect">Outerwear type</label>
+            <select id="outerwearTypeSelect">
+              <option value="">Select</option>
+              <option value="coat">Coat</option>
+              <option value="blazer">Blazer</option>
+              <option value="trench">Trench</option>
+              <option value="puffer">Puffer</option>
+              <option value="denim_jacket">Denim Jacket</option>
+              <option value="leather_jacket">Leather Jacket</option>
+            </select>
+          </div>
+
           <label for="colorSelect">Color</label>
           <select id="colorSelect">
             <option value="">Select</option>
@@ -108,6 +135,17 @@
             <option value="orange">Orange</option>
           </select>
 
+          <label for="occasionSelect">Occasion</label>
+          <select id="occasionSelect">
+            <option value="">Select</option>
+            <option value="Casual">Casual</option>
+            <option value="Work">Work</option>
+            <option value="Formal">Formal</option>
+            <option value="Date Night">Date Night</option>
+            <option value="Sport">Sport</option>
+            <option value="Weekend">Weekend</option>
+          </select>
+
           <div class="button-row">
             <button id="saveItemBtn" class="primary">Save Item</button>
             <button id="clearClosetBtn" class="secondary">Clear Closet</button>
@@ -117,18 +155,57 @@
         </section>
       </div>
 
+      <!-- ── RIGHT: Closet + Matches + Calendar + Profile ── -->
       <div class="right-column">
+
         <section class="section-card">
           <h2>My Closet</h2>
+          <div class="closet-toolbar">
+            <input type="text" id="closetSearch" placeholder="Search items…" />
+            <select id="closetFilterCategory">
+              <option value="">All categories</option>
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+              <option value="dress">Dress</option>
+              <option value="shoes">Shoes</option>
+              <option value="outerwear">Outerwear</option>
+            </select>
+            <select id="closetFilterOccasion">
+              <option value="">All occasions</option>
+              <option value="Casual">Casual</option>
+              <option value="Work">Work</option>
+              <option value="Formal">Formal</option>
+              <option value="Date Night">Date Night</option>
+              <option value="Sport">Sport</option>
+              <option value="Weekend">Weekend</option>
+            </select>
+          </div>
           <div id="closetGrid"></div>
         </section>
 
         <section class="section-card">
-          <h2>Outfit Matches</h2>
-          <p id="selectedLabel" class="muted">Select an item.</p>
+          <div class="outfit-section-header">
+            <h2>Outfit Matches</h2>
+            <button id="surpriseMeBtn" class="surprise-btn">✦ Surprise Me</button>
+          </div>
+          <p id="selectedLabel" class="muted">Select an item from your closet.</p>
+          <div id="occasionFilterBar" class="filter-bar"></div>
           <p id="outfitMsg" class="message"></p>
           <div id="outfitsGrid"></div>
         </section>
+
+        <section class="section-card">
+          <h2>Outfit Calendar</h2>
+          <p id="calendarMsg" class="muted" style="margin-bottom:14px;">Save outfits to plan your week.</p>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </section>
+
+        <section class="section-card">
+          <h2>Style Profile</h2>
+          <p id="styleProfileMsg" class="muted">Rate and wear outfits to build your profile.</p>
+          <div id="styleProfileBars"></div>
+        </section>
+
       </div>
     </div>
   </main>
