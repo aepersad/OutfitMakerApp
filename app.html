@@ -51,9 +51,7 @@
             <select id="topTypeSelect">
               <option value="">Select</option>
               <option value="shirt">Shirt</option>
-              <option value="cardigan">Cardigan</option>
               <option value="sweater">Sweater</option>
-              <option value="jacket">Jacket</option>
             </select>
           </div>
 
@@ -160,27 +158,37 @@
 
         <section class="section-card">
           <h2>My Closet</h2>
-          <div class="closet-toolbar">
-            <input type="text" id="closetSearch" placeholder="Search items…" />
-            <select id="closetFilterCategory">
-              <option value="">All categories</option>
-              <option value="top">Top</option>
-              <option value="bottom">Bottom</option>
-              <option value="dress">Dress</option>
-              <option value="shoes">Shoes</option>
-              <option value="outerwear">Outerwear</option>
-            </select>
-            <select id="closetFilterOccasion">
-              <option value="">All occasions</option>
-              <option value="Casual">Casual</option>
-              <option value="Work">Work</option>
-              <option value="Formal">Formal</option>
-              <option value="Date Night">Date Night</option>
-              <option value="Sport">Sport</option>
-              <option value="Weekend">Weekend</option>
-            </select>
+          <div class="closet-layout">
+
+            <div class="closet-filters">
+              <label for="closetSearch">Search</label>
+              <input type="text" id="closetSearch" placeholder="Search items…" />
+
+              <label for="closetFilterCategory">Category</label>
+              <select id="closetFilterCategory">
+                <option value="">All</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="dress">Dress</option>
+                <option value="shoes">Shoes</option>
+                <option value="outerwear">Outerwear</option>
+              </select>
+
+              <label for="closetFilterOccasion">Occasion</label>
+              <select id="closetFilterOccasion">
+                <option value="">All</option>
+                <option value="Casual">Casual</option>
+                <option value="Work">Work</option>
+                <option value="Formal">Formal</option>
+                <option value="Date Night">Date Night</option>
+                <option value="Sport">Sport</option>
+                <option value="Weekend">Weekend</option>
+              </select>
+            </div>
+
+            <div id="closetGrid"></div>
+
           </div>
-          <div id="closetGrid"></div>
         </section>
 
         <section class="section-card">
