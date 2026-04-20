@@ -51,6 +51,7 @@ const occasionSelect      = document.getElementById("occasionSelect");
 const saveItemBtn         = document.getElementById("saveItemBtn");
 const cancelEditBtn       = document.getElementById("cancelEditBtn");
 const clearClosetBtn      = document.getElementById("clearClosetBtn");
+const itemNameInput       = document.getElementById("itemNameInput");
 const uploadMsg           = document.getElementById("uploadMsg");
 const closetGrid          = document.getElementById("closetGrid");
 const closetSearch        = document.getElementById("closetSearch");
@@ -151,7 +152,7 @@ function saveOutfitToDay(items, dateKey) {
     eventName:   existing.eventName || "",
     outfitKey:   getOutfitKey(items),
     thumbnail:   items[0].imageDataUrl,
-    outfitLabel: items.map(formatItemLabel).join(" | "),
+    outfitLabel: items.map(i => i.name || formatItemShort(i)).join(" + "),
   };
   saveCalendarData(); renderCalendar(); renderFilteredOutfits();
 }
@@ -208,6 +209,23 @@ function formatItemLabel(item) {
 
 function uuid() {
   return crypto?.randomUUID ? crypto.randomUUID() : `id_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+}
+
+function getItemDisplayName(item) {
+  return item.name || formatItemLabel(item);
+}
+
+function formatItemShort(item) {
+  const parts = [];
+  if      (item.category === "top")       parts.push(titleCase(item.topType));
+  else if (item.category === "bottom")    parts.push(item.bottomType === "skirt" && item.skirtLength ? `${titleCase(item.skirtLength)} Skirt` : titleCase(item.bottomType));
+  else if (item.category === "dress")     parts.push(`${titleCase(item.dressLength)} Dress`);
+  else if (item.category === "shoes")     parts.push(titleCase(item.shoeType));
+  else if (item.category === "outerwear") parts.push(titleCase(item.outerwearType));
+  const colorStr = item.color2 ? `${titleCase(item.color)} / ${titleCase(item.color2)}` : titleCase(item.color);
+  if (item.color) parts.push(colorStr);
+  if (item.pattern === "patterned") parts.push("Patterned");
+  return parts.join(" · ");
 }
 
 function getOccasionClass(occ) {
@@ -317,6 +335,7 @@ function startEdit(item) {
   if (item.category === "dress")   { sleeveSelect.value = item.sleeveLength; dressLengthSelect.value = item.dressLength; }
   if (item.category === "shoes")     shoeTypeSelect.value      = item.shoeType;
   if (item.category === "outerwear") outerwearTypeSelect.value  = item.outerwearType;
+  if (itemNameInput) itemNameInput.value = item.name || "";
   colorSelect.value    = item.color;
   color2Select.value   = item.color2 || "";
   patternSelect.value  = item.pattern || "solid";
@@ -355,6 +374,7 @@ cancelEditBtn.addEventListener("click", cancelEdit);
 /* ---------- Form ---------- */
 function normalizeItemFromForm() {
   const cat           = categorySelect.value;
+  const name          = itemNameInput ? itemNameInput.value.trim() : "";
   const color         = colorSelect.value;
   const color2        = color2Select.value;
   const pattern       = patternSelect.value || "solid";
@@ -380,7 +400,7 @@ function normalizeItemFromForm() {
     item: {
       id: editingItemId || uuid(),
       imageDataUrl: pendingImageDataUrl,
-      category: cat, color, color2, pattern, occasion,
+      name, category: cat, color, color2, pattern, occasion,
       topType:       cat === "top"       ? topType       : "",
       bottomType:    cat === "bottom"    ? bottomType    : "",
       skirtLength:   (cat === "bottom" && bottomType === "skirt") ? skirtLength : "",
@@ -394,6 +414,7 @@ function normalizeItemFromForm() {
 
 function resetForm() {
   resetPreview();
+  if (itemNameInput) itemNameInput.value = "";
   [categorySelect, topTypeSelect, bottomTypeSelect, skirtLengthSelect, sleeveSelect,
    dressLengthSelect, colorSelect, color2Select, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
   if (patternSelect) patternSelect.value = "solid";
@@ -643,7 +664,8 @@ function renderOutfitCard(items, occasion) {
 
   // Meta
   const meta = document.createElement("div");
-  meta.className = "outfit-meta"; meta.textContent = items.map(formatItemLabel).join(" | ");
+  meta.className = "outfit-meta";
+  meta.textContent = items.map(i => i.name || formatItemShort(i)).join("  +  ");
   card.appendChild(meta);
 
   // Stars
@@ -696,11 +718,14 @@ function renderOutfitCard(items, occasion) {
     cl.appendChild(clRow); card.appendChild(cl);
   }
 
-  // Plan for the week
-  const planRow   = document.createElement("div"); planRow.className = "plan-row";
-  const planLabel = document.createElement("span"); planLabel.className = "plan-label"; planLabel.textContent = "Plan for";
-  planRow.appendChild(planLabel);
-  const planDays = document.createElement("div"); planDays.className = "plan-days";
+  // Plan for the week — collapsed behind a toggle
+  const planRow    = document.createElement("div"); planRow.className = "plan-row";
+  const anyPlanned = getCurrentWeekDays().some(({ key: dk }) => CALENDAR_DATA[dk] && CALENDAR_DATA[dk].outfitKey === key);
+  const planToggle = document.createElement("button");
+  planToggle.className = "plan-toggle-btn" + (anyPlanned ? " has-planned" : "");
+  planToggle.textContent = anyPlanned ? "✦ Planned this week" : "+ Plan for week";
+  const planDays = document.createElement("div"); planDays.className = "plan-days hidden";
+  planToggle.addEventListener("click", () => { planDays.classList.toggle("hidden"); });
   getCurrentWeekDays().forEach(({ name, key: dayKey }) => {
     const btn     = document.createElement("button");
     const planned = CALENDAR_DATA[dayKey] && CALENDAR_DATA[dayKey].outfitKey === key;
@@ -712,7 +737,7 @@ function renderOutfitCard(items, occasion) {
     });
     planDays.appendChild(btn);
   });
-  planRow.appendChild(planDays); card.appendChild(planRow);
+  planRow.appendChild(planToggle); planRow.appendChild(planDays); card.appendChild(planRow);
 
   return card;
 }
@@ -749,8 +774,14 @@ function renderStyleProfile() {
     scores[occ]  = Math.round(liked + rating + wears);
   });
   const hasData = Object.values(scores).some(s => s > 0);
-  if (!hasData) { styleProfileMsg.textContent = "Rate and wear outfits to build your profile."; styleProfileMsg.style.display = ""; return; }
-  styleProfileMsg.style.display = "none";
+  const interacted = Object.values(OUTFIT_DATA).filter(d => d.rating > 0 || d.wears > 0 || d.liked).length;
+  if (!hasData) {
+    styleProfileMsg.textContent = "Rate and wear outfits to build your profile.";
+    styleProfileMsg.style.display = "";
+    return;
+  }
+  styleProfileMsg.textContent = `Based on ${interacted} outfit${interacted === 1 ? "" : "s"} rated or worn.`;
+  styleProfileMsg.style.display = "";
   const maxScore = Math.max(...Object.values(scores), 1);
   Object.entries(scores).sort((a, b) => b[1] - a[1]).forEach(([occ, score]) => {
     const pct   = Math.round((score / maxScore) * 100);
@@ -856,8 +887,16 @@ function renderCloset() {
     const card = document.createElement("div"); card.className = "item-card";
     const img  = document.createElement("img"); img.src = item.imageDataUrl; img.alt = formatItemLabel(item);
     const body = document.createElement("div"); body.className = "item-body";
-    const meta = document.createElement("div"); meta.className = "item-meta"; meta.textContent = formatItemLabel(item);
-    body.appendChild(meta);
+    const meta = document.createElement("div"); meta.className = "item-meta";
+    if (item.name) {
+      meta.textContent = item.name;
+      const sub = document.createElement("div"); sub.className = "item-meta-sub";
+      sub.textContent = formatItemShort(item);
+      body.appendChild(meta); body.appendChild(sub);
+    } else {
+      meta.textContent = formatItemShort(item);
+      body.appendChild(meta);
+    }
     if (item.occasion) {
       const tag = document.createElement("span");
       tag.className = `occasion-tag ${getOccasionClass(item.occasion)}`;
