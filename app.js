@@ -152,7 +152,7 @@ function saveOutfitToDay(items, dateKey) {
     eventName:   existing.eventName || "",
     outfitKey:   getOutfitKey(items),
     thumbnail:   items[0].imageDataUrl,
-    outfitLabel: items.map(i => i.name || formatItemShort(i)).join(" + "),
+    outfitLabel: items.map(generateItemName).join(" + "),
   };
   saveCalendarData(); renderCalendar(); renderFilteredOutfits();
 }
@@ -211,21 +211,18 @@ function uuid() {
   return crypto?.randomUUID ? crypto.randomUUID() : `id_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
 }
 
-function getItemDisplayName(item) {
-  return item.name || formatItemLabel(item);
-}
-
-function formatItemShort(item) {
-  const parts = [];
-  if      (item.category === "top")       parts.push(titleCase(item.topType));
-  else if (item.category === "bottom")    parts.push(item.bottomType === "skirt" && item.skirtLength ? `${titleCase(item.skirtLength)} Skirt` : titleCase(item.bottomType));
-  else if (item.category === "dress")     parts.push(`${titleCase(item.dressLength)} Dress`);
-  else if (item.category === "shoes")     parts.push(titleCase(item.shoeType));
-  else if (item.category === "outerwear") parts.push(titleCase(item.outerwearType));
-  const colorStr = item.color2 ? `${titleCase(item.color)} / ${titleCase(item.color2)}` : titleCase(item.color);
-  if (item.color) parts.push(colorStr);
-  if (item.pattern === "patterned") parts.push("Patterned");
-  return parts.join(" · ");
+function generateItemName(item) {
+  const color = item.color2
+    ? `${titleCase(item.color)} / ${titleCase(item.color2)}`
+    : titleCase(item.color || "");
+  const patterned = item.pattern === "patterned" ? " Patterned" : "";
+  let type = "";
+  if      (item.category === "top")       type = titleCase(item.topType);
+  else if (item.category === "bottom")    type = (item.bottomType === "skirt" && item.skirtLength) ? `${titleCase(item.skirtLength)} Skirt` : titleCase(item.bottomType);
+  else if (item.category === "dress")     type = item.dressLength ? `${titleCase(item.dressLength)} Dress` : "Dress";
+  else if (item.category === "shoes")     type = titleCase(item.shoeType);
+  else if (item.category === "outerwear") type = titleCase(item.outerwearType);
+  return `${color}${patterned} ${type}`.trim();
 }
 
 function getOccasionClass(occ) {
@@ -337,7 +334,6 @@ function startEdit(item) {
   if (item.category === "dress")   { sleeveSelect.value = item.sleeveLength; dressLengthSelect.value = item.dressLength; }
   if (item.category === "shoes")     shoeTypeSelect.value      = item.shoeType;
   if (item.category === "outerwear") outerwearTypeSelect.value  = item.outerwearType;
-  if (itemNameInput) itemNameInput.value = item.name || "";
   colorSelect.value    = item.color;
   color2Select.value   = item.color2 || "";
   patternSelect.value  = item.pattern || "solid";
@@ -376,7 +372,6 @@ cancelEditBtn.addEventListener("click", cancelEdit);
 /* ---------- Form ---------- */
 function normalizeItemFromForm() {
   const cat           = categorySelect.value;
-  const name          = itemNameInput ? itemNameInput.value.trim() : "";
   const color         = colorSelect.value;
   const color2        = color2Select.value;
   const pattern       = patternSelect.value || "solid";
@@ -402,7 +397,7 @@ function normalizeItemFromForm() {
     item: {
       id: editingItemId || uuid(),
       imageDataUrl: pendingImageDataUrl,
-      name, category: cat, color, color2, pattern, occasion,
+      category: cat, color, color2, pattern, occasion,
       topType:       cat === "top"       ? topType       : "",
       bottomType:    cat === "bottom"    ? bottomType    : "",
       skirtLength:   (cat === "bottom" && bottomType === "skirt") ? skirtLength : "",
@@ -416,7 +411,6 @@ function normalizeItemFromForm() {
 
 function resetForm() {
   resetPreview();
-  if (itemNameInput) itemNameInput.value = "";
   [categorySelect, topTypeSelect, bottomTypeSelect, skirtLengthSelect, sleeveSelect,
    dressLengthSelect, colorSelect, color2Select, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
   if (patternSelect) patternSelect.value = "solid";
@@ -588,7 +582,11 @@ function generateOutfits(selected) {
 
 function getCompleteTheLook(items) {
   const ids = new Set(items.map(i => i.id));
-  return { shoes: ITEMS.filter(i => isShoe(i) && !ids.has(i.id)), outerwear: ITEMS.filter(i => isOuterwear(i) && !ids.has(i.id)) };
+  const hasLayer = items.some(i => isLayer(i) || isOuterwear(i));
+  return {
+    shoes:     ITEMS.filter(i => isShoe(i)     && !ids.has(i.id)),
+    outerwear: hasLayer ? [] : ITEMS.filter(i => isOuterwear(i) && !ids.has(i.id)),
+  };
 }
 
 /* ---------- Outfit occasion ---------- */
@@ -667,7 +665,7 @@ function renderOutfitCard(items, occasion) {
   // Meta
   const meta = document.createElement("div");
   meta.className = "outfit-meta";
-  meta.textContent = items.map(i => i.name || formatItemShort(i)).join("  +  ");
+  meta.textContent = items.map(generateItemName).join("  +  ");
   card.appendChild(meta);
 
   // Stars
@@ -890,15 +888,8 @@ function renderCloset() {
     const img  = document.createElement("img"); img.src = item.imageDataUrl; img.alt = formatItemLabel(item);
     const body = document.createElement("div"); body.className = "item-body";
     const meta = document.createElement("div"); meta.className = "item-meta";
-    if (item.name) {
-      meta.textContent = item.name;
-      const sub = document.createElement("div"); sub.className = "item-meta-sub";
-      sub.textContent = formatItemShort(item);
-      body.appendChild(meta); body.appendChild(sub);
-    } else {
-      meta.textContent = formatItemShort(item);
-      body.appendChild(meta);
-    }
+    meta.textContent = generateItemName(item);
+    body.appendChild(meta);
     if (item.occasion) {
       const tag = document.createElement("span");
       tag.className = `occasion-tag ${getOccasionClass(item.occasion)}`;
