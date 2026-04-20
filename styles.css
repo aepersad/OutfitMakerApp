@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap');
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   EDITORIAL PALETTE â€” Ivory Â· Black Â· Champagne
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ══════════════════════════════════════
+   EDITORIAL PALETTE — Ivory · Black · Champagne
+══════════════════════════════════════ */
 :root {
   --black:     #111111;
   --ivory:     #FAF9F6;
@@ -33,7 +33,7 @@ html, body {
 
 body { padding: 36px 20px 72px; }
 
-/* â”€â”€ Typography â”€â”€ */
+/* ── Typography ── */
 h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; margin-top: 0; color: var(--black); }
 
 h1 {
@@ -51,7 +51,7 @@ h2 {
 
 p, label, span, div, button, input, select { font-size: 0.9rem; line-height: 1.55; }
 
-/* â”€â”€ Page shell â”€â”€ */
+/* ── Page shell ── */
 .page-shell { max-width: 1200px; margin: 0 auto; }
 
 .topbar {
@@ -68,7 +68,7 @@ p, label, span, div, button, input, select { font-size: 0.9rem; line-height: 1.5
 .grid-layout { display: grid; grid-template-columns: 355px 1fr; gap: 28px; align-items: start; }
 .left-column, .right-column { display: grid; gap: 24px; }
 
-/* â”€â”€ Cards â”€â”€ */
+/* ── Cards ── */
 .section-card, .auth-card, .card, .panel {
   background: #ffffff; border: 1px solid rgba(0,0,0,0.08);
   border-radius: var(--radius-lg); box-shadow: var(--shadow);
@@ -77,7 +77,7 @@ p, label, span, div, button, input, select { font-size: 0.9rem; line-height: 1.5
 .section-card { padding: 24px; }
 .auth-card { max-width: 460px; margin: 0 auto; padding: 38px 32px; }
 
-/* â”€â”€ Form elements â”€â”€ */
+/* ── Form elements ── */
 label {
   display: block; font-size: 0.66rem; font-weight: 600;
   letter-spacing: 0.11em; text-transform: uppercase;
@@ -99,7 +99,7 @@ input[type="text"]:focus, input[type="password"]:focus, select:focus {
 
 input[type="file"] { width: 100%; margin-bottom: 10px; color: var(--mid); font-size: 0.82rem; }
 
-/* â”€â”€ Buttons â”€â”€ */
+/* ── Buttons ── */
 button {
   border: none; border-radius: 999px; padding: 10px 20px;
   font-size: 0.76rem; font-weight: 600; font-family: "Inter", sans-serif;
@@ -117,7 +117,7 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .button-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
 
-/* â”€â”€ Upload box â”€â”€ */
+/* ── Upload box ── */
 .upload-box { border: 1.5px dashed rgba(0,0,0,0.13); background: var(--ivory); border-radius: var(--radius-lg); padding: 16px; }
 
 .preview-box {
@@ -130,7 +130,7 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .preview-placeholder { color: var(--muted); font-size: 0.82rem; font-style: italic; }
 
-/* â”€â”€ Counter â”€â”€ */
+/* ── Counter ── */
 .counter {
   display: inline-block; background: var(--ivory-2); color: var(--mid);
   border: 1px solid rgba(0,0,0,0.09); border-radius: 999px;
@@ -145,13 +145,36 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .logout-btn { background: transparent; color: var(--mid); border: 1px solid rgba(0,0,0,0.11); font-size: 0.70rem; letter-spacing: 0.07em; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   CLOSET TOOLBAR
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-.closet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+/* ═══════════════════════════════════════
+   CLOSET LAYOUT  (filter sidebar + grid)
+═══════════════════════════════════════ */
+.closet-layout {
+  display: grid;
+  grid-template-columns: 138px 1fr;
+  gap: 18px;
+  align-items: start;
+}
 
-.closet-toolbar input[type="text"], .closet-toolbar select {
-  margin-bottom: 0; flex: 1; min-width: 100px; font-size: 0.8rem; padding: 8px 10px;
+.closet-filters {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(0,0,0,0.07);
+  padding-right: 16px;
+}
+
+.closet-filters label {
+  margin-top: 12px;
+  margin-bottom: 5px;
+}
+
+.closet-filters label:first-child { margin-top: 0; }
+
+.closet-filters input[type="text"],
+.closet-filters select {
+  margin-bottom: 0;
+  font-size: 0.78rem;
+  padding: 8px 10px;
+  width: 100%;
 }
 
 #closetGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
@@ -168,9 +191,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .item-actions { display: flex; gap: 8px; }
 .item-actions button { flex: 1; padding: 8px 8px; font-size: 0.70rem; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    OUTFIT SECTION HEADER
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .outfit-section-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
@@ -202,9 +225,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .outfit-meta { font-size: 0.74rem; color: var(--mid); font-weight: 500; line-height: 1.4; margin-bottom: 10px; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    OCCASION TAGS
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .occasion-tag {
   display: inline-block; font-size: 0.60rem; font-weight: 700;
   letter-spacing: 0.10em; text-transform: uppercase;
@@ -218,9 +241,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .occ-weekend { background: #fef4de; color: #7a5200; }
 .occ-default { background: #f0efee; color: #555555; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    OCCASION FILTER BAR
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 
 .filter-btn {
@@ -232,9 +255,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .filter-btn:hover  { background: var(--ivory-2); color: var(--black); transform: none; }
 .filter-btn.active { background: var(--black); color: #fff; border-color: var(--black); }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    STAR RATING
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .outfit-rating-row { display: flex; align-items: center; gap: 1px; margin-bottom: 10px; }
 
 .rating-label {
@@ -246,9 +269,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .star-btn:hover  { color: var(--gold); transform: scale(1.25); }
 .star-btn.filled { color: var(--gold); }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    OUTFIT FOOTER
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .outfit-footer {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 7px;
@@ -274,9 +297,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 }
 .wear-btn:hover { background: var(--ivory-2); transform: none; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    COMPLETE THE LOOK
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .complete-look { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.06); }
 
 .complete-look-label {
@@ -294,9 +317,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .complete-look-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; display: block; }
 .complete-look-thumb:hover { border-color: var(--gold); transform: scale(1.06); }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    PLAN FOR THE WEEK
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .plan-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.06); }
 
 .plan-label {
@@ -315,9 +338,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .plan-day-btn:hover   { background: var(--gold-lt); color: #6B4C00; border-color: rgba(201,160,40,0.35); transform: none; }
 .plan-day-btn.planned { background: var(--gold-lt); color: #6B4C00; border-color: rgba(201,160,40,0.45); }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    STYLE PROFILE
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .style-bar-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
 
 .style-bar-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--mid); min-width: 80px; flex-shrink: 0; }
@@ -333,9 +356,9 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .style-bar-pct { font-size: 0.66rem; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; flex-shrink: 0; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    OUTFIT CALENDAR
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 
 .calendar-day {
@@ -364,20 +387,24 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 
 .cal-empty { font-size: 1.1rem; color: var(--ivory-3); margin: auto; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    SHARED UTILITIES
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 .hidden { display: none !important; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════
    RESPONSIVE
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+═══════════════════════════════════════ */
 @media (max-width: 960px) {
   .grid-layout { grid-template-columns: 1fr; }
   body { padding: 20px 14px 52px; }
   .section-card, .auth-card { padding: 18px; }
   #closetGrid, #outfitsGrid { grid-template-columns: 1fr; }
   .calendar-grid { grid-template-columns: repeat(4, 1fr); }
+  .closet-layout { grid-template-columns: 1fr; }
+  .closet-filters { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.07); padding-right: 0; padding-bottom: 14px; flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  .closet-filters label { display: none; }
+  .closet-filters input[type="text"], .closet-filters select { width: auto; flex: 1; min-width: 120px; }
 }
 
 @media (max-width: 480px) {
