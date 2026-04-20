@@ -110,7 +110,12 @@ function getOutfitKey(items) { return items.map(i => i.id).slice().sort().join("
 function getOrInitOutfitData(items, occasion) {
   if (!OUTFIT_DATA || typeof OUTFIT_DATA !== "object") OUTFIT_DATA = {};
   const key = getOutfitKey(items);
-  if (!OUTFIT_DATA[key]) OUTFIT_DATA[key] = { rating: 0, wears: 0, liked: false, occasion: occasion || "", lastWorn: null };
+  if (!OUTFIT_DATA[key]) {
+    OUTFIT_DATA[key] = { rating: 0, wears: 0, liked: false, occasion: occasion || "", lastWorn: null };
+  } else if (occasion && !OUTFIT_DATA[key].occasion) {
+    OUTFIT_DATA[key].occasion = occasion;
+    saveOutfitData();
+  }
   return OUTFIT_DATA[key];
 }
 
@@ -773,8 +778,8 @@ function renderStyleProfile() {
     const wears  = Math.min(20, (entries.reduce((s, d) => s + d.wears, 0) / entries.length) * 4);
     scores[occ]  = Math.round(liked + rating + wears);
   });
-  const hasData = Object.values(scores).some(s => s > 0);
   const interacted = Object.values(OUTFIT_DATA).filter(d => d.rating > 0 || d.wears > 0 || d.liked).length;
+  const hasData    = interacted > 0;
   if (!hasData) {
     styleProfileMsg.textContent = "Rate and wear outfits to build your profile.";
     styleProfileMsg.style.display = "";
