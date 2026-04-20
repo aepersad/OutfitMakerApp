@@ -34,6 +34,8 @@ const topTypeGroup        = document.getElementById("topTypeGroup");
 const topTypeSelect       = document.getElementById("topTypeSelect");
 const bottomTypeGroup     = document.getElementById("bottomTypeGroup");
 const bottomTypeSelect    = document.getElementById("bottomTypeSelect");
+const skirtLengthGroup    = document.getElementById("skirtLengthGroup");
+const skirtLengthSelect   = document.getElementById("skirtLengthSelect");
 const sleeveGroup         = document.getElementById("sleeveGroup");
 const sleeveSelect        = document.getElementById("sleeveSelect");
 const dressLengthGroup    = document.getElementById("dressLengthGroup");
@@ -88,7 +90,14 @@ function loadItems() {
   return Array.isArray(p) ? p : [];
 }
 function saveItems()        { localStorage.setItem(itemsKey(profile.id),      JSON.stringify(ITEMS)); }
-function loadOutfitData()   { return safeParse(localStorage.getItem(outfitDataKey(profile.id)), {}); }
+function loadOutfitData() {
+  const data = safeParse(localStorage.getItem(outfitDataKey(profile.id)), {});
+  if (!data || typeof data !== "object") {
+    localStorage.removeItem(outfitDataKey(profile.id));
+    return {};
+  }
+  return data;
+}
 function saveOutfitData()   { localStorage.setItem(outfitDataKey(profile.id), JSON.stringify(OUTFIT_DATA)); }
 function loadCalendarData() { return safeParse(localStorage.getItem(calendarKey(profile.id)), {}); }
 function saveCalendarData() { localStorage.setItem(calendarKey(profile.id),   JSON.stringify(CALENDAR_DATA)); }
@@ -96,6 +105,7 @@ function saveCalendarData() { localStorage.setItem(calendarKey(profile.id),   JS
 function getOutfitKey(items) { return items.map(i => i.id).slice().sort().join("|"); }
 
 function getOrInitOutfitData(items, occasion) {
+  if (!OUTFIT_DATA || typeof OUTFIT_DATA !== "object") OUTFIT_DATA = {};
   const key = getOutfitKey(items);
   if (!OUTFIT_DATA[key]) OUTFIT_DATA[key] = { rating: 0, wears: 0, liked: false, occasion: occasion || "", lastWorn: null };
   return OUTFIT_DATA[key];
@@ -171,11 +181,20 @@ function titleCase(v) {
 
 function formatItemLabel(item) {
   const parts = [];
-  if      (item.category === "top")       parts.push(`Top (${titleCase(item.topType)})`);
-  else if (item.category === "bottom")    parts.push(`Bottom (${titleCase(item.bottomType)})`);
-  else if (item.category === "dress")     parts.push(`Dress (${titleCase(item.dressLength)})`);
-  else if (item.category === "shoes")     parts.push(`Shoes (${titleCase(item.shoeType)})`);
-  else if (item.category === "outerwear") parts.push(`Outerwear (${titleCase(item.outerwearType)})`);
+  if (item.category === "top") {
+    parts.push(`Top (${titleCase(item.topType)})`);
+  } else if (item.category === "bottom") {
+    const sub = item.bottomType === "skirt" && item.skirtLength
+      ? `Skirt (${titleCase(item.skirtLength)})`
+      : titleCase(item.bottomType);
+    parts.push(`Bottom (${sub})`);
+  } else if (item.category === "dress") {
+    parts.push(`Dress (${titleCase(item.dressLength)})`);
+  } else if (item.category === "shoes") {
+    parts.push(`Shoes (${titleCase(item.shoeType)})`);
+  } else if (item.category === "outerwear") {
+    parts.push(`Outerwear (${titleCase(item.outerwearType)})`);
+  }
   if (item.sleeveLength) parts.push(titleCase(item.sleeveLength));
   if (item.color)        parts.push(titleCase(item.color));
   return parts.join(" • ");
@@ -202,21 +221,28 @@ function isRecentlyWorn(data) {
 
 /* ---------- Conditional fields ---------- */
 function updateConditionalFields() {
-  const cat = categorySelect.value;
+  const cat    = categorySelect.value;
+  const bottom = bottomTypeSelect.value;
+  const isSkirt = cat === "bottom" && bottom === "skirt";
+
   topTypeGroup.classList.toggle("hidden",       cat !== "top");
   bottomTypeGroup.classList.toggle("hidden",    cat !== "bottom");
+  skirtLengthGroup.classList.toggle("hidden",   !isSkirt);
   sleeveGroup.classList.toggle("hidden",        !(cat === "top" || cat === "dress"));
   dressLengthGroup.classList.toggle("hidden",   cat !== "dress");
   shoeTypeGroup.classList.toggle("hidden",      cat !== "shoes");
   outerwearTypeGroup.classList.toggle("hidden", cat !== "outerwear");
+
   if (cat !== "top")       topTypeSelect.value       = "";
   if (cat !== "bottom")    bottomTypeSelect.value    = "";
+  if (!isSkirt)            skirtLengthSelect.value   = "";
   if (!(cat === "top" || cat === "dress")) sleeveSelect.value = "";
   if (cat !== "dress")     dressLengthSelect.value   = "";
   if (cat !== "shoes")     shoeTypeSelect.value      = "";
   if (cat !== "outerwear") outerwearTypeSelect.value  = "";
 }
 categorySelect.addEventListener("change", updateConditionalFields);
+bottomTypeSelect.addEventListener("change", updateConditionalFields);
 
 /* ---------- Image preview ---------- */
 function resetPreview() {
@@ -267,7 +293,7 @@ function startEdit(item) {
   categorySelect.value = item.category;
   updateConditionalFields();
   if (item.category === "top")       topTypeSelect.value       = item.topType;
-  if (item.category === "bottom")    bottomTypeSelect.value    = item.bottomType;
+  if (item.category === "bottom")  { bottomTypeSelect.value    = item.bottomType; updateConditionalFields(); if (item.bottomType === "skirt") skirtLengthSelect.value = item.skirtLength || ""; }
   if (item.category === "top" || item.category === "dress") sleeveSelect.value = item.sleeveLength;
   if (item.category === "dress")     dressLengthSelect.value   = item.dressLength;
   if (item.category === "shoes")     shoeTypeSelect.value      = item.shoeType;
@@ -312,6 +338,7 @@ function normalizeItemFromForm() {
   const occasion      = occasionSelect.value;
   const topType       = topTypeSelect.value;
   const bottomType    = bottomTypeSelect.value;
+  const skirtLength   = skirtLengthSelect.value;
   const sleeve        = sleeveSelect.value;
   const dressLength   = dressLengthSelect.value;
   const shoeType      = shoeTypeSelect.value;
@@ -321,7 +348,7 @@ function normalizeItemFromForm() {
   if (!cat)   return { error: "Select a category." };
   if (!color) return { error: "Select a color." };
   if (cat === "top")       { if (!topType)      return { error: "Select a top type." };       if (!sleeve)      return { error: "Select a sleeve length." }; }
-  if (cat === "bottom")    { if (!bottomType)   return { error: "Select a bottom type." }; }
+  if (cat === "bottom")    { if (!bottomType)   return { error: "Select a bottom type." };    if (bottomType === "skirt" && !skirtLength) return { error: "Select a skirt length." }; }
   if (cat === "dress")     { if (!sleeve)       return { error: "Select a sleeve length." };  if (!dressLength) return { error: "Select a dress length." }; }
   if (cat === "shoes")     { if (!shoeType)     return { error: "Select a shoe type." }; }
   if (cat === "outerwear") { if (!outerwearType) return { error: "Select an outerwear type." }; }
@@ -333,6 +360,7 @@ function normalizeItemFromForm() {
       category: cat, color, occasion,
       topType:       cat === "top"       ? topType       : "",
       bottomType:    cat === "bottom"    ? bottomType    : "",
+      skirtLength:   (cat === "bottom" && bottomType === "skirt") ? skirtLength : "",
       sleeveLength:  (cat === "top" || cat === "dress") ? sleeve : "",
       dressLength:   cat === "dress"     ? dressLength   : "",
       shoeType:      cat === "shoes"     ? shoeType      : "",
@@ -343,8 +371,8 @@ function normalizeItemFromForm() {
 
 function resetForm() {
   resetPreview();
-  [categorySelect, topTypeSelect, bottomTypeSelect, sleeveSelect, dressLengthSelect,
-   colorSelect, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
+  [categorySelect, topTypeSelect, bottomTypeSelect, skirtLengthSelect, sleeveSelect,
+   dressLengthSelect, colorSelect, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
   updateConditionalFields();
 }
 
@@ -392,12 +420,13 @@ function getFilteredItems() {
 }
 
 /* ---------- Matching rules ---------- */
-function isShirt(i)    { return i.category === "top" && i.topType === "shirt"; }
+function isShirt(i)    { return i.category === "top" && ["shirt","t-shirt","blouse","button-up"].includes(i.topType); }
 function isLayer(i)    { return i.category === "top" && i.topType === "sweater"; }
 function isBottom(i)   { return i.category === "bottom"; }
 function isDress(i)    { return i.category === "dress"; }
 function isShoe(i)     { return i.category === "shoes"; }
 function isOuterwear(i){ return i.category === "outerwear"; }
+function isCardigan(i) { return i.category === "outerwear" && i.outerwearType === "cardigan"; }
 function layerAllowedWithTop(t)  { return t && t.category === "top" && t.sleeveLength === "short"; }
 function layerAllowedWithDress(d){ return d && d.category === "dress" && ["sleeveless","short"].includes(d.sleeveLength); }
 
@@ -430,17 +459,76 @@ function generateAllClothingOutfits() {
 }
 
 function generateOutfits(selected) {
-  if (isShoe(selected))      return uniqOutfits(generateAllClothingOutfits().map(items => [selected, ...items]));
-  if (isOuterwear(selected)) return uniqOutfits(generateAllClothingOutfits().filter(items => outfitColorsOK([selected, ...items])).map(items => [selected, ...items]));
+  if (isShoe(selected)) return uniqOutfits(generateAllClothingOutfits().map(items => [selected, ...items]));
 
-  const shirts = ITEMS.filter(isShirt), layers = ITEMS.filter(isLayer),
-        bottoms = ITEMS.filter(isBottom), dresses = ITEMS.filter(isDress);
+  if (isOuterwear(selected)) {
+    if (isCardigan(selected)) {
+      // Cardigans only layer over short-sleeve shirts + bottoms, or sleeveless/short-sleeve dresses
+      const shirts  = ITEMS.filter(isShirt);
+      const bottoms = ITEMS.filter(isBottom);
+      const dresses = ITEMS.filter(isDress);
+      const out = [];
+      shirts.forEach(s => {
+        if (!layerAllowedWithTop(s)) return;
+        bottoms.forEach(b => { if (outfitColorsOK([selected, s, b])) out.push([selected, s, b]); });
+      });
+      dresses.forEach(d => {
+        if (!layerAllowedWithDress(d)) return;
+        if (outfitColorsOK([selected, d])) out.push([selected, d]);
+      });
+      return uniqOutfits(out);
+    }
+    // All other outerwear goes over any clothing combo
+    return uniqOutfits(generateAllClothingOutfits()
+      .filter(items => outfitColorsOK([selected, ...items]))
+      .map(items => [selected, ...items]));
+  }
+
+  const shirts    = ITEMS.filter(isShirt);
+  const layers    = ITEMS.filter(isLayer);
+  const cardigans = ITEMS.filter(isCardigan);
+  const bottoms   = ITEMS.filter(isBottom);
+  const dresses   = ITEMS.filter(isDress);
   const out = [];
   function add(items) { if (!items.some(i => i.id === selected.id)) return; if (!outfitColorsOK(items)) return; out.push(items); }
-  if (isLayer(selected))  { shirts.forEach(t => { if (!layerAllowedWithTop(t)) return; bottoms.forEach(b => add([selected, t, b])); }); dresses.forEach(d => { if (!layerAllowedWithDress(d)) return; add([selected, d]); }); return uniqOutfits(out); }
-  if (isShirt(selected))  { bottoms.forEach(b => add([selected, b])); if (layerAllowedWithTop(selected)) layers.forEach(l => bottoms.forEach(b => add([l, selected, b]))); return uniqOutfits(out); }
-  if (isDress(selected))  { add([selected]); if (layerAllowedWithDress(selected)) layers.forEach(l => add([l, selected])); return uniqOutfits(out); }
-  if (isBottom(selected)) { shirts.forEach(t => { add([t, selected]); if (layerAllowedWithTop(t)) layers.forEach(l => add([l, t, selected])); }); return uniqOutfits(out); }
+
+  if (isLayer(selected)) {
+    shirts.forEach(t => { if (!layerAllowedWithTop(t)) return; bottoms.forEach(b => add([selected, t, b])); });
+    dresses.forEach(d => { if (!layerAllowedWithDress(d)) return; add([selected, d]); });
+    return uniqOutfits(out);
+  }
+
+  if (isShirt(selected)) {
+    bottoms.forEach(b => add([selected, b]));
+    if (layerAllowedWithTop(selected)) {
+      // Sweater layers
+      layers.forEach(l => bottoms.forEach(b => add([l, selected, b])));
+      // Cardigan layers (short-sleeve shirts only)
+      cardigans.forEach(c => bottoms.forEach(b => add([c, selected, b])));
+    }
+    return uniqOutfits(out);
+  }
+
+  if (isDress(selected)) {
+    add([selected]);
+    if (layerAllowedWithDress(selected)) {
+      layers.forEach(l => add([l, selected]));
+      cardigans.forEach(c => add([c, selected]));
+    }
+    return uniqOutfits(out);
+  }
+
+  if (isBottom(selected)) {
+    shirts.forEach(t => {
+      add([t, selected]);
+      if (layerAllowedWithTop(t)) {
+        layers.forEach(l => add([l, t, selected]));
+        cardigans.forEach(c => add([c, t, selected]));
+      }
+    });
+    return uniqOutfits(out);
+  }
+
   return uniqOutfits(out);
 }
 
