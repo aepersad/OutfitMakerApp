@@ -10,7 +10,10 @@ function outfitDataKey(id) { return `buildmyoutfit_outfitdata_${id}_v1`; }
 function calendarKey(id)   { return `buildmyoutfit_calendar_${id}_v1`; }
 
 function safeParse(raw, fallback) {
-  try { return JSON.parse(raw); } catch { return fallback; }
+  try {
+    const result = JSON.parse(raw);
+    return (result !== null && result !== undefined) ? result : fallback;
+  } catch { return fallback; }
 }
 
 /* ---------- Auth guard ---------- */
