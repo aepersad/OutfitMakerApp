@@ -255,28 +255,30 @@ function updateConditionalFields() {
   bottomTypeGroup.classList.toggle("hidden",    cat !== "bottom");
   skirtLengthGroup.classList.toggle("hidden",   !isSkirt);
 
-  // Sleeve group: visible for tops (not tank top) and dresses
+  // Sleeve group: visible for tops (except tank top) and dresses
   const showSleeve = (cat === "top" && !isTankTop) || cat === "dress";
   sleeveGroup.classList.toggle("hidden", !showSleeve);
 
-  // Sleeveless option: only valid for dresses, not tops
-  const sleevelessOpt = document.getElementById("sleeveOptSleeveless");
-  if (sleevelessOpt) {
-    sleevelessOpt.style.display = cat === "dress" ? "" : "none";
-    if (cat !== "dress" && sleeveSelect.value === "sleeveless") sleeveSelect.value = "";
+  // Rebuild sleeve options dynamically — avoids Safari ignoring display:none on <option>
+  if (showSleeve) {
+    const current = sleeveSelect.value;
+    sleeveSelect.innerHTML = cat === "dress"
+      ? `<option value="">Select</option><option value="sleeveless">Sleeveless</option><option value="short">Short</option><option value="long">Long</option>`
+      : `<option value="">Select</option><option value="short">Short</option><option value="long">Long</option>`;
+    if ([...sleeveSelect.options].some(o => o.value === current)) sleeveSelect.value = current;
   }
 
   dressLengthGroup.classList.toggle("hidden",   cat !== "dress");
   shoeTypeGroup.classList.toggle("hidden",      cat !== "shoes");
   outerwearTypeGroup.classList.toggle("hidden", cat !== "outerwear");
 
-  if (cat !== "top")       { topTypeSelect.value = ""; }
-  if (cat !== "bottom")    { bottomTypeSelect.value = ""; }
-  if (!isSkirt)             skirtLengthSelect.value = "";
-  if (!showSleeve || isTankTop) sleeveSelect.value = "";
-  if (cat !== "dress")     dressLengthSelect.value   = "";
-  if (cat !== "shoes")     shoeTypeSelect.value      = "";
-  if (cat !== "outerwear") outerwearTypeSelect.value  = "";
+  if (cat !== "top")            topTypeSelect.value      = "";
+  if (cat !== "bottom")         bottomTypeSelect.value   = "";
+  if (!isSkirt)                 skirtLengthSelect.value  = "";
+  if (!showSleeve || isTankTop) sleeveSelect.value       = "";
+  if (cat !== "dress")          dressLengthSelect.value  = "";
+  if (cat !== "shoes")          shoeTypeSelect.value     = "";
+  if (cat !== "outerwear")      outerwearTypeSelect.value = "";
 }
 categorySelect.addEventListener("change", updateConditionalFields);
 bottomTypeSelect.addEventListener("change", updateConditionalFields);
