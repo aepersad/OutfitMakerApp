@@ -284,6 +284,8 @@ function toggleSaveOutfit(items, occasion) {
   saveSavedOutfits();
   renderSavedOutfits();
 }
+
+function isRecentlyWorn(data) {
   if (!data.lastWorn) return false;
   const last     = new Date(data.lastWorn);
   const today    = new Date();
