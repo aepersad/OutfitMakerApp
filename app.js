@@ -65,6 +65,7 @@ const occasionFilterBar   = document.getElementById("occasionFilterBar");
 const surpriseMeBtn       = document.getElementById("surpriseMeBtn");
 const savedGrid           = document.getElementById("savedGrid");
 const savedMsg            = document.getElementById("savedMsg");
+const calendarGrid        = document.getElementById("calendarGrid");
 const calendarMsg         = document.getElementById("calendarMsg");
 const calWeekLabel        = document.getElementById("calWeekLabel");
 const calPrevBtn          = document.getElementById("calPrevBtn");
