@@ -516,7 +516,7 @@ closetFilterOcc.addEventListener("change", e => { closetOccFilter  = e.target.va
 
 function getFilteredItems() {
   return ITEMS.filter(item => {
-    const label = formatItemLabel(item).toLowerCase();
+    const label = (formatItemLabel(item) + " " + (item.name || "")).toLowerCase();
     const occ   = (item.occasion || "").toLowerCase();
     const matchSearch = !closetSearchText || label.includes(closetSearchText.toLowerCase()) || occ.includes(closetSearchText.toLowerCase());
     const matchCat    = !closetCatFilter  || item.category === closetCatFilter;
