@@ -453,6 +453,40 @@ button.danger { background: #fff7f7; color: var(--danger); border: 1px solid rgb
 .style-bar-pct { font-size: 0.66rem; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; flex-shrink: 0; }
 
 /* ═══════════════════════════════════════
+   CALENDAR NAV
+═══════════════════════════════════════ */
+.cal-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 16px;
+}
+
+.cal-nav-center {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1;
+}
+
+.cal-week-label {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--navy); text-align: center;
+}
+
+.cal-nav-btn {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+  padding: 7px 14px; border-radius: 999px;
+  background: var(--cream); color: var(--navy);
+  border: 1px solid var(--cream-3); cursor: pointer;
+  transition: background 0.14s; white-space: nowrap;
+}
+.cal-nav-btn:hover { background: var(--cream-2); transform: none; }
+
+.cal-today-btn {
+  font-size: 0.60rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--navy); color: var(--white);
+  border: none; cursor: pointer; transition: background 0.14s;
+}
+.cal-today-btn:hover { background: var(--navy-2); transform: none; }
+
+/* ═══════════════════════════════════════
    OUTFIT CALENDAR
 ═══════════════════════════════════════ */
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }

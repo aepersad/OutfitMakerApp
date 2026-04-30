@@ -66,6 +66,10 @@ const surpriseMeBtn       = document.getElementById("surpriseMeBtn");
 const savedGrid           = document.getElementById("savedGrid");
 const savedMsg            = document.getElementById("savedMsg");
 const calendarMsg         = document.getElementById("calendarMsg");
+const calWeekLabel        = document.getElementById("calWeekLabel");
+const calPrevBtn          = document.getElementById("calPrevBtn");
+const calNextBtn          = document.getElementById("calNextBtn");
+const calTodayBtn         = document.getElementById("calTodayBtn");
 const styleProfileMsg     = document.getElementById("styleProfileMsg");
 const styleProfileBars    = document.getElementById("styleProfileBars");
 
@@ -81,6 +85,7 @@ let ITEMS                = loadItems();
 let OUTFIT_DATA          = loadOutfitData();
 let CALENDAR_DATA        = loadCalendarData();
 let SAVED_OUTFITS        = loadSavedOutfits();
+let calendarWeekOffset   = 0;
 let pendingImageDataUrl  = "";
 let editingItemId        = null;
 let activeOccasionFilter = "All";
@@ -144,11 +149,11 @@ function switchTab(panelId) {
 }
 
 /* ---------- Calendar helpers ---------- */
-function getCurrentWeekDays() {
+function getCurrentWeekDays(offset = 0) {
   const today  = new Date();
   const dow    = today.getDay();
   const monday = new Date(today);
-  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
   return DAY_NAMES.map((name, i) => {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -909,10 +914,19 @@ function renderStyleProfile() {
 /* ---------- Calendar ---------- */
 function renderCalendar() {
   calendarGrid.innerHTML = "";
-  const week     = getCurrentWeekDays();
+  const week     = getCurrentWeekDays(calendarWeekOffset);
   const todayKey = new Date().toISOString().split("T")[0];
   const hasAny   = week.some(({ key }) => CALENDAR_DATA[key] && (CALENDAR_DATA[key].thumbnail || CALENDAR_DATA[key].eventName));
   calendarMsg.style.display = hasAny ? "none" : "";
+
+  // Week label
+  const fmt   = { month: "short", day: "numeric" };
+  const first = new Date(week[0].key + "T12:00:00");
+  const last  = new Date(week[6].key + "T12:00:00");
+  const range = `${first.toLocaleDateString("en-US", fmt)} – ${last.toLocaleDateString("en-US", { ...fmt, year: "numeric" })}`;
+  const prefix = calendarWeekOffset === 0 ? "This Week · " : calendarWeekOffset === -1 ? "Last Week · " : calendarWeekOffset === 1 ? "Next Week · " : "";
+  calWeekLabel.textContent = prefix + range;
+  calTodayBtn.classList.toggle("hidden", calendarWeekOffset === 0);
 
   week.forEach(({ name, date, key }) => {
     const entry   = CALENDAR_DATA[key];
@@ -1077,6 +1091,10 @@ function renderSavedOutfits() {
   });
 }
 
+
+calPrevBtn.addEventListener("click",  () => { calendarWeekOffset--; renderCalendar(); });
+calNextBtn.addEventListener("click",  () => { calendarWeekOffset++; renderCalendar(); });
+calTodayBtn.addEventListener("click", () => { calendarWeekOffset = 0; renderCalendar(); });
 
 updateConditionalFields();
 renderCloset();
