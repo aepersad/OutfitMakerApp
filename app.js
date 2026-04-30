@@ -223,6 +223,7 @@ function uuid() {
 }
 
 function generateItemName(item) {
+  if (item.name) return item.name;
   const color = item.color2
     ? `${titleCase(item.color)} / ${titleCase(item.color2)}`
     : titleCase(item.color || "");
@@ -383,6 +384,7 @@ function startEdit(item) {
   editingItemId = item.id;
 
   // Populate all form fields
+  itemNameInput.value  = item.name || "";
   categorySelect.value = item.category;
   updateConditionalFields();
   if (item.category === "top")     { topTypeSelect.value = item.topType; updateConditionalFields(); if (item.topType !== "tank-top") sleeveSelect.value = item.sleeveLength; }
@@ -452,6 +454,7 @@ function normalizeItemFromForm() {
   return {
     item: {
       id: editingItemId || uuid(),
+      name: itemNameInput.value.trim(),
       imageDataUrl: pendingImageDataUrl,
       category: cat, color, color2, pattern, occasion,
       topType:       cat === "top"       ? topType       : "",
@@ -467,6 +470,7 @@ function normalizeItemFromForm() {
 
 function resetForm() {
   resetPreview();
+  itemNameInput.value = "";
   [categorySelect, topTypeSelect, bottomTypeSelect, skirtLengthSelect, sleeveSelect,
    dressLengthSelect, colorSelect, color2Select, occasionSelect, shoeTypeSelect, outerwearTypeSelect].forEach(s => s.value = "");
   if (patternSelect) patternSelect.value = "solid";
